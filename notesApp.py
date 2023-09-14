@@ -2,9 +2,10 @@ import os
 import sys
 
 import cryptography
+from PyQt5.QtCore import QSize
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, QInputDialog, \
     QLineEdit, QTextBrowser, QFileDialog, QSizePolicy, QSpacerItem
-from PyQt5.QtGui import QPalette, QColor, QFont, QFontDatabase
+from PyQt5.QtGui import QPalette, QColor, QFont, QIcon, QFontDatabase
 from markdown import markdown
 
 from crypto import encrypt, decrypt, derive_key, save_salt, load_salt
@@ -39,19 +40,29 @@ class NotesApp(QWidget):
         main_layout = QVBoxLayout()
         hbox = QHBoxLayout()
         main_layout.addLayout(hbox)
-
+        icon_size = QSize(24, 24)
+        button_font = QFont("Arial", 10)
         button_layout = QHBoxLayout()
         button_layout.addItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
-        self.save_button = QPushButton("Save Note")
+        self.save_button = QPushButton("Save")
+        self.save_button.setFont(button_font)
+        self.save_button.setIcon(QIcon('./icons/save.png'))
+        self.save_button.setIconSize(icon_size)
         self.save_button.clicked.connect(self.save_notes)
         button_layout.addWidget(self.save_button)
 
-        self.load_button = QPushButton("Load Note")
+        self.load_button = QPushButton("Open")
+        self.load_button.setFont(button_font)
+        self.load_button.setIcon(QIcon('./icons/open.png'))
+        self.load_button.setIconSize(icon_size)
         self.load_button.clicked.connect(self.load_notes)
         button_layout.addWidget(self.load_button)
 
-        self.markdown_button = QPushButton("Preview Markdown")
+        self.markdown_button = QPushButton("Preview")
+        self.markdown_button.setFont(button_font)
+        self.markdown_button.setIcon(QIcon('./icons/preview.png'))
+        self.markdown_button.setIconSize(icon_size)
         self.markdown_button.clicked.connect(self.render_markdown)
         button_layout.addWidget(self.markdown_button)
 
