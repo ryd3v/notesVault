@@ -63,7 +63,7 @@ class NotesApp(QWidget):
 
         self.setLayout(layout)
         self.setWindowTitle('Encrypted Notes App')
-        self.resize(1024, 768)
+        self.resize(1728, 1080)
         self.show()
 
     def render_markdown(self):
