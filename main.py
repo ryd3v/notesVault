@@ -40,7 +40,7 @@ class NotesApp(QWidget):
         layout.addWidget(self.load_button)
 
         self.setLayout(layout)
-        self.setWindowTitle('Encrypted Notes App')
+        self.setWindowTitle('Encrypted Notes')
         self.show()
 
     def save_notes(self):
