@@ -28,6 +28,7 @@ class NotesApp(QWidget):
         dialog.setLabelText('Enter your password:')
         dialog.setTextEchoMode(QLineEdit.Password)
         dialog.setFixedSize(400, 300)
+        self.setStyleSheet("background-color: #333333;")
         dialog.setWindowTitle('Encrypted Notes App')
         ok = dialog.exec_()
         password = dialog.textValue()
@@ -72,6 +73,7 @@ class NotesApp(QWidget):
 
         self.setLayout(main_layout)
         self.setWindowTitle('Encrypted Notes App')
+        self.setStyleSheet("background-color: #333333;")
         self.resize(1728, 1080)
         self.show()
 
