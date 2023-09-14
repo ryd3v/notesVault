@@ -1,3 +1,6 @@
 /venv/
 salt.dat
 note.enc
+/build/
+/dist/
+/notesApp.spec
