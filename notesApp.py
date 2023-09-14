@@ -2,11 +2,9 @@ import os
 import sys
 
 import cryptography
-from PyQt5 import Qt
-from PyQt5.QtGui import QPalette, QColor
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, QInputDialog, \
-    QLineEdit, \
-    QTextBrowser, QFileDialog, QSizePolicy, QSpacerItem
+    QLineEdit, QTextBrowser, QFileDialog, QSizePolicy, QSpacerItem
+from PyQt5.QtGui import QPalette, QColor, QFont, QFontDatabase
 from markdown import markdown
 
 from crypto import encrypt, decrypt, derive_key, save_salt, load_salt
@@ -22,13 +20,11 @@ class NotesApp(QWidget):
             existing_salt = os.urandom(16)
             save_salt(existing_salt)
 
-        # Prompt user for password
         dialog = QInputDialog(self)
         dialog.setInputMode(QInputDialog.TextInput)
         dialog.setLabelText('Enter your password:')
         dialog.setTextEchoMode(QLineEdit.Password)
         dialog.setFixedSize(400, 300)
-        self.setStyleSheet("background-color: #333333;")
         dialog.setWindowTitle('Encrypted Notes App')
         ok = dialog.exec_()
         password = dialog.textValue()
@@ -42,11 +38,9 @@ class NotesApp(QWidget):
     def initUI(self):
         main_layout = QVBoxLayout()
         hbox = QHBoxLayout()
-
         main_layout.addLayout(hbox)
 
         button_layout = QHBoxLayout()
-
         button_layout.addItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
         self.save_button = QPushButton("Save Note")
@@ -57,7 +51,7 @@ class NotesApp(QWidget):
         self.load_button.clicked.connect(self.load_notes)
         button_layout.addWidget(self.load_button)
 
-        self.markdown_button = QPushButton("Render Markdown")
+        self.markdown_button = QPushButton("Preview Markdown")
         self.markdown_button.clicked.connect(self.render_markdown)
         button_layout.addWidget(self.markdown_button)
 
@@ -66,14 +60,12 @@ class NotesApp(QWidget):
 
         self.text_display = QTextBrowser()
         hbox.addWidget(self.text_display)
-
         button_layout.addItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
         main_layout.addLayout(button_layout)
 
         self.setLayout(main_layout)
-        self.setWindowTitle('Encrypted Notes App | ryd3v')
-        self.setStyleSheet("background-color: #333333;")
+        self.setWindowTitle('Encrypted Notes App')
         self.resize(1728, 1080)
         self.show()
 
@@ -118,10 +110,15 @@ class NotesApp(QWidget):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
-    # Set the style to Fusion
     app.setStyle("Fusion")
 
-    # Create and set the dark color palette
+    font_id = QFontDatabase.addApplicationFont("./fonts/Roboto-Regular.ttf")
+    font_families = QFontDatabase.applicationFontFamilies(font_id)
+    if len(font_families) != 0:
+        font = QFont(font_families[0])
+        font.setPointSize(12)
+        app.setFont(font)
+
     palette = QPalette()
     palette.setColor(QPalette.Window, QColor(53, 53, 53))
     palette.setColor(QPalette.WindowText, QColor(255, 255, 255))
