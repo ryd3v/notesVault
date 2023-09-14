@@ -4,7 +4,7 @@ import sys
 import cryptography
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, QInputDialog, \
     QLineEdit, \
-    QTextBrowser
+    QTextBrowser, QFileDialog
 from markdown import markdown
 
 from crypto import encrypt, decrypt, derive_key, save_salt, load_salt
@@ -72,22 +72,36 @@ class NotesApp(QWidget):
         self.text_display.setHtml(html_text)
 
     def save_notes(self):
-        note_text = self.text_edit.toPlainText()
-        encrypted_note = encrypt(note_text, self.key)
-        with open("note.enc", "wb") as note_file:
-            note_file.write(encrypted_note)
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        filename, _ = QFileDialog.getSaveFileName(self, "Save Note", "", "Encrypted Notes Files (*.enc);;All Files (*)",
+                                                  options=options)
+
+        if filename:
+            if not filename.endswith('.enc'):
+                filename += '.enc'
+            note_text = self.text_edit.toPlainText()
+            encrypted_note = encrypt(note_text, self.key)
+            with open(filename, "wb") as note_file:
+                note_file.write(encrypted_note)
 
     def load_notes(self):
-        try:
-            with open("note.enc", "rb") as note_file:
-                encrypted_note = note_file.read()
-            decrypted_note = decrypt(encrypted_note, self.key)
-            self.text_edit.setPlainText(decrypted_note)
-            self.render_markdown()  # Automatically render Markdown when a note is loaded
-        except FileNotFoundError:
-            self.text_edit.setPlainText("No saved notes found.")
-        except cryptography.fernet.InvalidToken:
-            self.text_edit.setPlainText("Failed to decrypt. Incorrect key or corrupted data.")
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        filename, _ = QFileDialog.getOpenFileName(self, "Open Note", "", "Encrypted Notes Files (*.enc);;All Files (*)",
+                                                  options=options)
+
+        if filename:
+            try:
+                with open(filename, "rb") as note_file:
+                    encrypted_note = note_file.read()
+                decrypted_note = decrypt(encrypted_note, self.key)
+                self.text_edit.setPlainText(decrypted_note)
+                self.render_markdown()  # Automatically render Markdown when a note is loaded
+            except FileNotFoundError:
+                self.text_edit.setPlainText("No saved notes found.")
+            except cryptography.fernet.InvalidToken:
+                self.text_edit.setPlainText("Failed to decrypt. Incorrect key or corrupted data.")
 
 
 if __name__ == '__main__':
