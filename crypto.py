@@ -4,7 +4,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 import os
 import base64
 
-salt = os.urandom(16)  # Ideally, this should be stored securely for later use.
+salt = os.urandom(16)
 
 
 def derive_key(password, salt):
