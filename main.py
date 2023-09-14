@@ -4,7 +4,7 @@ import sys
 import cryptography
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, QInputDialog, \
     QLineEdit, \
-    QTextBrowser, QFileDialog
+    QTextBrowser, QFileDialog, QSizePolicy, QSpacerItem
 from markdown import markdown
 
 from crypto import encrypt, decrypt, derive_key, save_salt, load_salt
@@ -37,31 +37,38 @@ class NotesApp(QWidget):
             self.close()
 
     def initUI(self):
-        layout = QVBoxLayout()
+        main_layout = QVBoxLayout()
         hbox = QHBoxLayout()
 
-        # QTextEdit for editing notes
-        self.text_edit = QTextEdit()
-        hbox.addWidget(self.text_edit)
+        main_layout.addLayout(hbox)
 
-        # QTextBrowser for displaying Markdown
-        self.text_display = QTextBrowser()
-        hbox.addWidget(self.text_display)
-        layout.addLayout(hbox)
+        button_layout = QHBoxLayout()
+
+        button_layout.addItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
         self.save_button = QPushButton("Save Note")
         self.save_button.clicked.connect(self.save_notes)
-        layout.addWidget(self.save_button)
+        button_layout.addWidget(self.save_button)
 
         self.load_button = QPushButton("Load Note")
         self.load_button.clicked.connect(self.load_notes)
-        layout.addWidget(self.load_button)
+        button_layout.addWidget(self.load_button)
 
         self.markdown_button = QPushButton("Render Markdown")
         self.markdown_button.clicked.connect(self.render_markdown)
-        layout.addWidget(self.markdown_button)
+        button_layout.addWidget(self.markdown_button)
 
-        self.setLayout(layout)
+        self.text_edit = QTextEdit()
+        hbox.addWidget(self.text_edit)
+
+        self.text_display = QTextBrowser()
+        hbox.addWidget(self.text_display)
+
+        button_layout.addItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+
+        main_layout.addLayout(button_layout)
+
+        self.setLayout(main_layout)
         self.setWindowTitle('Encrypted Notes App')
         self.resize(1728, 1080)
         self.show()
