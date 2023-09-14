@@ -11,6 +11,15 @@ from markdown import markdown
 from crypto import encrypt, decrypt, derive_key, save_salt, load_salt
 
 
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
+
 class NotesApp(QWidget):
     def __init__(self):
         super().__init__()
@@ -47,21 +56,21 @@ class NotesApp(QWidget):
 
         self.save_button = QPushButton("Save")
         self.save_button.setFont(button_font)
-        self.save_button.setIcon(QIcon('./icons/save.png'))
+        self.save_button.setIcon(QIcon(resource_path("save.png")))  # Corrected
         self.save_button.setIconSize(icon_size)
         self.save_button.clicked.connect(self.save_notes)
         button_layout.addWidget(self.save_button)
 
         self.load_button = QPushButton("Open")
         self.load_button.setFont(button_font)
-        self.load_button.setIcon(QIcon('./icons/open.png'))
+        self.load_button.setIcon(QIcon(resource_path("open.png")))  # Corrected
         self.load_button.setIconSize(icon_size)
         self.load_button.clicked.connect(self.load_notes)
         button_layout.addWidget(self.load_button)
 
         self.markdown_button = QPushButton("Preview")
         self.markdown_button.setFont(button_font)
-        self.markdown_button.setIcon(QIcon('./icons/preview.png'))
+        self.markdown_button.setIcon(QIcon(resource_path("preview.png")))  # Corrected
         self.markdown_button.setIconSize(icon_size)
         self.markdown_button.clicked.connect(self.render_markdown)
         button_layout.addWidget(self.markdown_button)
