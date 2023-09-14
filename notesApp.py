@@ -72,7 +72,7 @@ class NotesApp(QWidget):
         main_layout.addLayout(button_layout)
 
         self.setLayout(main_layout)
-        self.setWindowTitle('Encrypted Notes App')
+        self.setWindowTitle('Encrypted Notes App | ryd3v')
         self.setStyleSheet("background-color: #333333;")
         self.resize(1728, 1080)
         self.show()
