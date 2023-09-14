@@ -4,7 +4,9 @@
 
 V1.3.0
 
-![ALT](https://github.com/ryd3v/notesApp/blob/main/notesApp-Screenshot.png)
+![ALT](https://github.com/ryd3v/notesApp/blob/main/Screenshot_1.png)
+
+![ALT](https://github.com/ryd3v/notesApp/blob/main/Screenshot_2.png)
 
 ## Overview
 
