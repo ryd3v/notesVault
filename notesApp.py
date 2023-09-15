@@ -4,7 +4,7 @@ import sys
 import cryptography
 from PyQt5.QtCore import QSize
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, QInputDialog, \
-    QLineEdit, QTextBrowser, QFileDialog, QSizePolicy, QSpacerItem
+    QLineEdit, QTextBrowser, QFileDialog, QSizePolicy, QSpacerItem, QMessageBox
 from PyQt5.QtGui import QPalette, QColor, QFont, QIcon, QFontDatabase
 from markdown import markdown
 
@@ -23,13 +23,10 @@ def resource_path(relative_path):
 class NotesApp(QWidget):
     def __init__(self):
         super().__init__()
-
-        # Load existing salt or create a new one
         existing_salt = load_salt()
         if existing_salt is None:
             existing_salt = os.urandom(16)
             save_salt(existing_salt)
-
         dialog = QInputDialog(self)
         dialog.setInputMode(QInputDialog.TextInput)
         dialog.setLabelText('Enter your password:')
@@ -38,13 +35,31 @@ class NotesApp(QWidget):
         dialog.setWindowTitle('Encrypted Notes App')
         ok = dialog.exec_()
         password = dialog.textValue()
-
         if ok:
-            self.key = derive_key(password.encode(), existing_salt)
-            self.initUI()
+            is_valid, message = self.validate_password(password)
+            if is_valid:
+                self.key = derive_key(password.encode(), existing_salt)
+                self.initUI()
+            else:
+                QMessageBox.warning(self, "Invalid Password", message)
+                self.close()
         else:
             self.close()
 
+    def validate_password(self, password):
+        if len(password) < 8:
+            return False, "Password should be at least 8 characters long."
+        if not any(char.isupper() for char in password):
+            return False, "Password should contain at least one uppercase letter."
+        if not any(char.islower() for char in password):
+            return False, "Password should contain at least one lowercase letter."
+        if not any(char.isdigit() for char in password):
+            return False, "Password should contain at least one numeric digit."
+        special_characters = "!@#$%^&*()-_+=<>?/"
+        if not any(char in special_characters for char in password):
+            return False, "Password should contain at least one special character."
+        return True, "Password is valid."
+    
     def initUI(self):
         main_layout = QVBoxLayout()
         hbox = QHBoxLayout()
