@@ -1,6 +1,6 @@
 ﻿# Simple Encrypted Notes App
 
- ![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
 V1.3.0
 
@@ -16,11 +16,17 @@ ensure the privacy of your data.
 
 ## Features
 
-- Create, edit, and save encrypted notes.
-- Password-protected access to the application.
-- Markdown support for rich text formatting.
-- Dark mode for better readability.
-- Cross-platform support (Windows, macOS, Linux).
+- Basic note-taking functionality
+- Create, edit, and save encrypted notes
+- AES-256 encryption for securing notes
+- Password-protected access to the application
+- Markdown support for rich text formatting
+- Dark mode for better readability
+- Cross-platform support (Windows, macOS, Linux)
+- Resizable window
+
+Enhanced security features include a randomly generated securely stored salt. Password-based encryption key derivation
+using PBKDF2-HMAC-SHA256
 
 ## Installation
 
@@ -45,7 +51,7 @@ or
     ```
 3. Build the application using PyInstaller:
     ```bash
-    pyinstaller .\notesApp.spec
+    pyinstaller notesApp.spec
     ```
 
 ## Usage
