@@ -1,5 +1,7 @@
 ﻿# Simple Encrypted Notes App
 
+#### Ryan Collins 2023
+
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
 V2.0
@@ -177,3 +179,16 @@ salt ensures that each derived key is unique, even if two users have the same pa
 
 This method is widely used for securely storing passwords and generating cryptographic keys from human-readable
 passwords.
+
+----
+
+## Disclaimer
+
+This software is provided "as is", without warranty of any kind, express or implied, including but not limited to the
+warranties of merchantability, fitness for a particular purpose and non-infringement. In no event shall the authors or
+copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort or
+otherwise, arising from, out of or in connection with the software or the use or other dealings in the software.
+
+The user assumes all responsibility for the secure and proper use of this software, including but not limited to the
+protection of their own data. The creators of this software are not responsible for any data loss, unauthorized access,
+or any other damage or loss that may occur due to the use or misuse of this software.
