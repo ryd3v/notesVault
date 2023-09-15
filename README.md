@@ -68,3 +68,46 @@ or
 ## Usage
 
 Run the `notesApp.exe` executable to launch the application.
+
+----
+
+## Q&A
+
+### What is the salt file?
+
+The concept of a "salt" in cryptography refers to random data that is used as an additional input along with the
+user-provided password during the process of encryption or hashing. The salt ensures that even if two users have the
+same password, their respective salts will differ, resulting in different encryption or hash outputs. This adds an extra
+layer of security.
+
+### How Does Salt Work in Encryption?
+
+1. **Generation**: A salt is typically a random sequence of bytes generated once and stored for future use. It doesn't
+   need to be kept secret; in fact, it's often stored alongside the encrypted data.
+
+2. **Combination**: When a user provides a password for encryption or decryption, the salt is combined with this
+   password. This can be done in a number of ways, but it usually involves appending or prepending the salt to the
+   password.
+
+3. **Key Derivation**: The salted password is then run through a key derivation function to produce an encryption key.
+   This key is used for the actual encryption and decryption of data.
+
+4. **Storage**: Since the salt is required to decrypt the data, it is usually stored alongside the encrypted data. When
+   decryption is needed, the same salt is used in conjunction with the provided password to derive the encryption key
+   again.
+
+### Importance of Salt
+
+1. **Uniqueness**: Because salts are unique, they ensure that identical passwords will produce different encryption
+   keys, thus resulting in different ciphertexts.
+
+2. **Resistance to Pre-computed Attacks**: Salts make it computationally infeasible for an attacker to use pre-computed
+   tables (like rainbow tables) to reverse engineer the encryption key, because each salt would require its own set of
+   tables.
+
+3. **Brute-force Inefficiency**: An attacker cannot efficiently crack multiple encrypted items at once, because each
+   item's encryption key is different due to the salt, even if the same password was used.
+
+In our Encrypted Notes App, the salt is generated randomly and used along with the user-provided password to create a
+secure encryption key. The salt itself is stored so that it can be used again for decryption or for generating the
+encryption key for new data.
