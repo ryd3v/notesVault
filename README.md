@@ -28,6 +28,17 @@ ensure the privacy of your data.
 Enhanced security features include a randomly generated securely stored salt. Password-based encryption key derivation
 using PBKDF2-HMAC-SHA256
 
+## Password Validation
+
+- Password should be at least 8 characters long
+- Password should contain at least one uppercase letter
+- Password should contain at least one lowercase letter
+- Password should contain at least one numeric digit
+- Password should contain at least one special character [!@#$%^&*()-_+=<>?/]
+- Password is valid
+
+----
+
 ## Installation
 
 ### Visit the [releases](https://github.com/ryd3v/notesApp/releases) page for the packed app
