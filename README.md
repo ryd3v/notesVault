@@ -111,3 +111,22 @@ layer of security.
 In our Encrypted Notes App, the salt is generated randomly and used along with the user-provided password to create a
 secure encryption key. The salt itself is stored so that it can be used again for decryption or for generating the
 encryption key for new data.
+
+### How does the Key Derivation work?
+
+In our Encrypted Notes App, the key derivation part is handled by the `derive_key` function, which is imported from
+the `crypto` module. The function takes the user-provided password and a salt as its inputs and returns the derived
+encryption key.
+
+Here's how it generally works:
+
+1. **User-Provided Password**: The password is collected from the user via a dialog box when the application starts.
+
+2. **Salt**: The salt is either loaded from a saved file or generated randomly if it doesn't exist.
+
+3. **Key Derivation**: The `derive_key` function is then called with the password and salt to produce an encryption key.
+
+The encryption key is used for both encrypting and decrypting the notes.
+
+The `derive_key` function typically uses a key derivation function (KDF) like PBKDF2, bcrypt, or scrypt to produce the
+encryption key from the salt and the password.
