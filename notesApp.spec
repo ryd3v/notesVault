@@ -8,7 +8,7 @@ a = Analysis(
     ['notesApp.py'],
     pathex=[],
     binaries=[],
-    datas=[('./icons/open.png', '.'), ('./icons/preview.png', '.'), ('./icons/save.png', '.')],
+    datas=[('./icons/open.png', '.'), ('./icons/preview.png', '.'), ('./icons/save.png', '.'), ('./icons/single.png', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

@@ -56,24 +56,30 @@ class NotesApp(QWidget):
 
         self.save_button = QPushButton("Save")
         self.save_button.setFont(button_font)
-        self.save_button.setIcon(QIcon(resource_path("save.png")))  # Corrected
+        self.save_button.setIcon(QIcon(resource_path("save.png")))
         self.save_button.setIconSize(icon_size)
         self.save_button.clicked.connect(self.save_notes)
         button_layout.addWidget(self.save_button)
 
         self.load_button = QPushButton("Open")
         self.load_button.setFont(button_font)
-        self.load_button.setIcon(QIcon(resource_path("open.png")))  # Corrected
+        self.load_button.setIcon(QIcon(resource_path("open.png")))
         self.load_button.setIconSize(icon_size)
         self.load_button.clicked.connect(self.load_notes)
         button_layout.addWidget(self.load_button)
 
         self.markdown_button = QPushButton("Preview")
         self.markdown_button.setFont(button_font)
-        self.markdown_button.setIcon(QIcon(resource_path("preview.png")))  # Corrected
+        self.markdown_button.setIcon(QIcon(resource_path("preview.png")))
         self.markdown_button.setIconSize(icon_size)
         self.markdown_button.clicked.connect(self.render_markdown)
         button_layout.addWidget(self.markdown_button)
+
+        self.toggle_preview_button = QPushButton("Markdown")
+        self.toggle_preview_button.setFont(button_font)
+        self.toggle_preview_button.setIcon(QIcon(resource_path("single.png")))
+        self.toggle_preview_button.clicked.connect(self.toggle_preview)
+        button_layout.addWidget(self.toggle_preview_button)
 
         self.text_edit = QTextEdit()
         hbox.addWidget(self.text_edit)
@@ -88,6 +94,9 @@ class NotesApp(QWidget):
         self.setWindowTitle('Encrypted Notes App')
         self.resize(960, 540)
         self.show()
+
+    def toggle_preview(self):
+        self.text_display.setVisible(not self.text_display.isVisible())
 
     def render_markdown(self):
         current_text = self.text_edit.toPlainText()
