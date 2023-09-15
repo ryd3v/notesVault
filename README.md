@@ -130,3 +130,50 @@ The encryption key is used for both encrypting and decrypting the notes.
 
 The `derive_key` function typically uses a key derivation function (KDF) like PBKDF2, bcrypt, or scrypt to produce the
 encryption key from the salt and the password.
+
+### What is PBKDF2-HMAC-SHA256?
+
+PBKDF2-HMAC-SHA256 stands for Password-Based Key Derivation Function 2 with HMAC (Hash-based Message Authentication
+Code) using SHA-256 (Secure Hash Algorithm 256-bit).
+
+Let's break it down:
+
+### PBKDF2
+
+**Password-Based Key Derivation Function 2 (PBKDF2)** is a key stretching algorithm that takes a password and a salt as
+input and produces a derived key. This derived key can be used for cryptographic operations like encryption and
+decryption. PBKDF2 is generally used to make brute-force attacks more difficult by making the key derivation process
+computationally intensive.
+
+### HMAC
+
+**HMAC (Hash-based Message Authentication Code)** is a type of message authentication code involving a cryptographic
+hash function and a secret cryptographic key. It is used in PBKDF2 to mix the salt and the password in a secure way.
+
+### SHA-256
+
+**SHA-256 (Secure Hash Algorithm 256-bit)** is a cryptographic hash function that takes an input (or "message") and
+returns a fixed-size (256-bit) hash. It's a member of the SHA-2 (Secure Hash Algorithm 2) family.
+
+### PBKDF2-HMAC-SHA256
+
+When combined, **PBKDF2-HMAC-SHA256** means that PBKDF2 is using HMAC with SHA-256 as its pseudorandom function. This
+provides a good balance between security and computational cost.
+
+Here's how it works:
+
+1. **Initialization**: A password and a salt are taken as input along with other parameters like the number of
+   iterations and the length of the derived key.
+
+2. **First Step**: The password and salt are combined and hashed using HMAC-SHA256.
+
+3. **Iterations**: The hash is then rehashed a specified number of times (iterations) to make the function
+   computationally intensive. Each iteration's output becomes the input for the next iteration.
+
+4. **Final Step**: The last hash is the derived key, which can be truncated or expanded to the desired key length.
+
+The number of iterations is generally set high to make brute-force and dictionary attacks computationally expensive. The
+salt ensures that each derived key is unique, even if two users have the same password.
+
+This method is widely used for securely storing passwords and generating cryptographic keys from human-readable
+passwords.
