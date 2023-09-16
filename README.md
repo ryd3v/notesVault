@@ -4,7 +4,7 @@
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
-V2.0.1
+V2.0.2
 
 ![ALT](https://github.com/ryd3v/notesApp/blob/main/Screenshot_1.png)
 
@@ -38,6 +38,8 @@ using Argon2 for Key Derivation: Replaced PBKDF2 with Argon2 for more secure key
 - Password should contain at least one numeric digit
 - Password should contain at least one special character [!@#$%^&*()-_+=<>?/]
 - Password is valid
+
+#### A 16-character password is recommended
 
 ----
 
