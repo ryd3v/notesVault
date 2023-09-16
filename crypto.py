@@ -1,20 +1,21 @@
 from cryptography.fernet import Fernet
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-import os
+from argon2 import PasswordHasher
 import base64
 
-salt = os.urandom(16)
+# Argon2 settings
+ph = PasswordHasher(
+    time_cost=2,
+    memory_cost=19 * 1024,
+    parallelism=1,
+    hash_len=32,
+    salt_len=16
+)
 
 
 def derive_key(password, salt):
-    kdf = PBKDF2HMAC(
-        algorithm=hashes.SHA256(),
-        length=32,
-        salt=salt,
-        iterations=100000,
-    )
-    return base64.urlsafe_b64encode(kdf.derive(password))
+    argon2_hash = ph.hash(password.decode() + salt.hex())
+    key = base64.urlsafe_b64encode(argon2_hash.encode()[:32])
+    return key
 
 
 def save_salt(salt, filename='salt.dat'):

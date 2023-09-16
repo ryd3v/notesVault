@@ -59,7 +59,7 @@ class NotesApp(QWidget):
         if not any(char in special_characters for char in password):
             return False, "Password should contain at least one special character."
         return True, "Password is valid."
-    
+
     def initUI(self):
         main_layout = QVBoxLayout()
         hbox = QHBoxLayout()
@@ -83,16 +83,17 @@ class NotesApp(QWidget):
         self.load_button.clicked.connect(self.load_notes)
         button_layout.addWidget(self.load_button)
 
-        self.markdown_button = QPushButton("Preview")
+        self.markdown_button = QPushButton("Markdown")
         self.markdown_button.setFont(button_font)
         self.markdown_button.setIcon(QIcon(resource_path("preview.png")))
         self.markdown_button.setIconSize(icon_size)
         self.markdown_button.clicked.connect(self.render_markdown)
         button_layout.addWidget(self.markdown_button)
 
-        self.toggle_preview_button = QPushButton("Markdown")
+        self.toggle_preview_button = QPushButton("Preview")
         self.toggle_preview_button.setFont(button_font)
         self.toggle_preview_button.setIcon(QIcon(resource_path("single.png")))
+        self.toggle_preview_button.setIconSize(icon_size)
         self.toggle_preview_button.clicked.connect(self.toggle_preview)
         button_layout.addWidget(self.toggle_preview_button)
 

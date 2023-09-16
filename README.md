@@ -4,7 +4,7 @@
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
-V2.0
+V2.0.1
 
 ![ALT](https://github.com/ryd3v/notesApp/blob/main/Screenshot_1.png)
 
@@ -28,7 +28,7 @@ ensure the privacy of your data.
 - Resizable window
 
 Enhanced security features include a randomly generated securely stored salt. Password-based encryption key derivation
-using PBKDF2-HMAC-SHA256
+using Argon2 for Key Derivation: Replaced PBKDF2 with Argon2 for more secure key derivation.
 
 ## Password Validation
 
@@ -133,52 +133,30 @@ The encryption key is used for both encrypting and decrypting the notes.
 The `derive_key` function typically uses a key derivation function (KDF) like PBKDF2, bcrypt, or scrypt to produce the
 encryption key from the salt and the password.
 
-### What is PBKDF2-HMAC-SHA256?
+## Argon2 Encryption Algorithm
 
-PBKDF2-HMAC-SHA256 stands for Password-Based Key Derivation Function 2 with HMAC (Hash-based Message Authentication
-Code) using SHA-256 (Secure Hash Algorithm 256-bit).
+### What is Argon2?
 
-Let's break it down:
+Argon2 is a key derivation function that was selected as the winner of the Password Hashing Competition in 2015. It's
+designed to be secure against a range of attacks, including side-channel attacks and timing attacks. Argon2 is highly
+customizable, which allows developers to configure the time, memory, and parallelism factors to balance between security
+and performance.
 
-### PBKDF2
+### Why Use Argon2?
 
-**Password-Based Key Derivation Function 2 (PBKDF2)** is a key stretching algorithm that takes a password and a salt as
-input and produces a derived key. This derived key can be used for cryptographic operations like encryption and
-decryption. PBKDF2 is generally used to make brute-force attacks more difficult by making the key derivation process
-computationally intensive.
+- **Security**: Argon2 is resistant to a wide array of attacks, including timing attacks and side-channel attacks.
+- **Customizable**: Parameters for time, memory, and parallelism can be adjusted based on the security requirements
+  and hardware capabilities.
+- **Widely Accepted**: Being the winner of the Password Hashing Competition, it is recognized and recommended by
+  security experts.
 
-### HMAC
+### How We Use Argon2 in Encrypted Notes App
 
-**HMAC (Hash-based Message Authentication Code)** is a type of message authentication code involving a cryptographic
-hash function and a secret cryptographic key. It is used in PBKDF2 to mix the salt and the password in a secure way.
+In our application, we use Argon2id, a hybrid version combining Argon2i and Argon2d, to derive the encryption keys from
+the user's password. We have tuned Argon2 to use a minimum configuration of 19 MiB of memory, an iteration count of 2,
+and 1 degree of parallelism, balancing both security and performance.
 
-### SHA-256
-
-**SHA-256 (Secure Hash Algorithm 256-bit)** is a cryptographic hash function that takes an input (or "message") and
-returns a fixed-size (256-bit) hash. It's a member of the SHA-2 (Secure Hash Algorithm 2) family.
-
-### PBKDF2-HMAC-SHA256
-
-When combined, **PBKDF2-HMAC-SHA256** means that PBKDF2 is using HMAC with SHA-256 as its pseudorandom function. This
-provides a good balance between security and computational cost.
-
-Here's how it works:
-
-1. **Initialization**: A password and a salt are taken as input along with other parameters like the number of
-   iterations and the length of the derived key.
-
-2. **First Step**: The password and salt are combined and hashed using HMAC-SHA256.
-
-3. **Iterations**: The hash is then rehashed a specified number of times (iterations) to make the function
-   computationally intensive. Each iteration's output becomes the input for the next iteration.
-
-4. **Final Step**: The last hash is the derived key, which can be truncated or expanded to the desired key length.
-
-The number of iterations is generally set high to make brute-force and dictionary attacks computationally expensive. The
-salt ensures that each derived key is unique, even if two users have the same password.
-
-This method is widely used for securely storing passwords and generating cryptographic keys from human-readable
-passwords.
+By utilizing Argon2, we ensure that your notes are encrypted in a secure and efficient manner.
 
 ----
 
