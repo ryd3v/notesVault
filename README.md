@@ -20,9 +20,11 @@ ensure the privacy of your data.
 
 - Basic note-taking functionality
 - Create, edit, and save encrypted notes
-- AES-256 encryption for securing notes
+- Argon2 encryption for securing notes
+- AES-128 for encryption of notes
 - Password-protected access to the application
 - Markdown support for rich text formatting
+- Markdown preview and toggle
 - Dark mode for better readability
 - Cross-platform support (Windows, macOS, Linux)
 - Resizable window
@@ -42,6 +44,61 @@ using Argon2 for Key Derivation: Replaced PBKDF2 with Argon2 for more secure key
 #### A 16-character password is recommended
 
 ----
+
+## How our app works:
+
+### 1. Importing Libraries
+Firstly, we import the necessary libraries like `cryptography` and our custom `crypto` module to handle cryptographic operations.
+
+### 2. Salt Generation and Storage
+When the app is initialized, a salt is either generated randomly or loaded from a file(salt.dat). This salt is crucial for the key derivation process. It's a random sequence of bytes that is used in combination with your password to generate a unique key.
+
+```python
+existing_salt = load_salt()
+if existing_salt is None:
+    existing_salt = os.urandom(16)
+    save_salt(existing_salt)
+```
+
+### 3. User Password and Validation
+The password is obtained from you via a dialog box. This password is then validated to meet certain criteria like length and complexity, as noted above.
+
+```python
+dialog = QInputDialog(self)
+# ... set various properties of the dialog box
+ok = dialog.exec_()
+password = dialog.textValue()
+```
+
+### 4. Key Derivation
+Your password and the generated/loaded salt are then used to derive a unique encryption key using Argon2 in the `crypto` module.
+
+```python
+self.key = derive_key(password.encode(), existing_salt)
+```
+
+### 5. Text Encryption and Decryption
+When you save a note, the text is encrypted using the derived key before being saved to a file.
+
+```python
+encrypted_note = encrypt(note_text, self.key)
+```
+
+And when loading a note, the encrypted text is decrypted using the same key.
+
+```python
+decrypted_note = decrypt(encrypted_note, self.key)
+```
+
+### 6. Key Functions and Algorithms
+
+#### Argon2 (Current Version)
+We are using Argon2, a more modern and secure key derivation function. Argon2 is resistant to GPU cracking attacks and offers better security features. Argon2id, a hybrid of Argon2i and Argon2d, which provides both side-channel attack resistance and brute-force attack resistance.
+
+### 7. Data Storage
+Finally, the encrypted note is stored in a `.enc` file. The salt is also stored, as it is required for decryption.
+
+---
 
 ## Installation
 
