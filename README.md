@@ -4,7 +4,7 @@
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
-V2.0.2
+V2.0.3
 
 ![ALT](https://github.com/ryd3v/notesApp/blob/main/Screenshot_1.png)
 

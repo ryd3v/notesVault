@@ -48,16 +48,16 @@ class NotesApp(QWidget):
 
     def validate_password(self, password):
         if len(password) < 8:
-            return False, "Password should be at least 8 characters long."
+            return False, "Password must be at least 8 characters long."
         if not any(char.isupper() for char in password):
-            return False, "Password should contain at least one uppercase letter."
+            return False, "Password must contain at least one uppercase letter."
         if not any(char.islower() for char in password):
-            return False, "Password should contain at least one lowercase letter."
+            return False, "Password must contain at least one lowercase letter."
         if not any(char.isdigit() for char in password):
-            return False, "Password should contain at least one numeric digit."
+            return False, "Password must contain at least one numeric digit."
         special_characters = "!@#$%^&*()-_+=<>?/"
         if not any(char in special_characters for char in password):
-            return False, "Password should contain at least one special character."
+            return False, "Password must contain at least one special character."
         return True, "Password is valid."
 
     def initUI(self):
@@ -161,7 +161,7 @@ if __name__ == '__main__':
     font_families = QFontDatabase.applicationFontFamilies(font_id)
     if len(font_families) != 0:
         font = QFont(font_families[0])
-        font.setPointSize(12)
+        font.setPointSize(13)
         app.setFont(font)
 
     palette = QPalette()
