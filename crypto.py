@@ -4,9 +4,9 @@ import base64
 
 # Argon2 settings
 ph = PasswordHasher(
-    time_cost=1,
+    time_cost=2,
     memory_cost=2097152,
-    parallelism=4,
+    parallelism=8,
     hash_len=32,
     salt_len=16
 )
