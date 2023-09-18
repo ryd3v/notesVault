@@ -80,16 +80,6 @@ self.key = derive_key(password.encode(), existing_salt)
 ### 5. Text Encryption and Decryption
 When you save a note, the text is encrypted using the derived key before being saved to a file.
 
-```python
-encrypted_note = encrypt(note_text, self.key)
-```
-
-And when loading a note, the encrypted text is decrypted using the same key.
-
-```python
-decrypted_note = decrypt(encrypted_note, self.key)
-```
-
 ### 6. Key Functions and Algorithms
 
 #### Argon2 (Current Version)
@@ -223,6 +213,38 @@ the user's password. We have tuned Argon2 to use a minimum configuration of 2 Gi
 and 8 degree of parallelism, balancing both security and performance.
 
 By utilizing Argon2, we ensure that your notes are encrypted in a secure and efficient manner.
+
+## AES-256-GCM Encryption
+
+### Overview
+
+The Advanced Encryption Standard (AES) is a symmetric encryption algorithm that was established by the U.S. National Institute of Standards and Technology (NIST) in 2001. AES-256-GCM (Galois/Counter Mode) is a high-performance, secure variant of AES that uses a 256-bit key for encryption and includes an authentication tag for message integrity.
+
+### Key Features
+
+#### Symmetric Encryption
+- AES-256-GCM is a symmetric encryption algorithm, meaning the same key is used for both encryption and decryption. The key size is 256 bits, making it one of the most secure encryption standards available.
+
+#### Authenticated Encryption
+- GCM (Galois/Counter Mode) is an authenticated encryption mode that not only provides confidentiality but also provides integrity and authenticity assurances on the encrypted data.
+
+#### High Performance
+- AES-256-GCM is optimized for high performance, making it suitable for encrypting large amounts of data or high-speed data streams.
+
+#### Nonce
+- AES-256-GCM requires a nonce (Number Once) to provide security. The nonce must never be reused with the same key.
+
+### How It Works in Our App
+
+1. **Key Derivation**: The encryption key is derived using Argon2, a secure key derivation function, along with a salt. This key is 256 bits long, conforming to the AES-256-GCM standard.
+
+2. **Initialization Vector (IV)**: A unique IV (also known as a nonce in the context of GCM) is generated each time a note is encrypted. This ensures that the same plaintext encrypted with the same key will produce different ciphertexts based on the different IVs.
+
+3. **Encryption**: The plaintext note is encrypted using AES-256-GCM, and an authentication tag is generated.
+
+4. **Data Storage**: The IV, authentication tag, and encrypted note are concatenated and stored securely.
+
+5. **Decryption**: When reading an encrypted note, the IV and authentication tag are extracted, and the note is decrypted using the same key. The authentication tag is verified to ensure the integrity of the data.
 
 ----
 
