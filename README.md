@@ -126,6 +126,13 @@ or
     pyinstaller notesApp.spec
     ```
 
+### Archlinux 
+
+On Archlinux you will need to install Qt 5.x
+
+```bash
+  sudo pacman -S qt5-base
+```
 ## Usage
 
 Run the `notesApp.exe` executable to launch the application.
