@@ -1,6 +1,9 @@
-from cryptography.fernet import Fernet
-from argon2 import PasswordHasher
 import base64
+import os
+
+from argon2 import PasswordHasher
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.ciphers import algorithms, modes, Cipher
 
 # Argon2 settings
 ph = PasswordHasher(
@@ -14,8 +17,7 @@ ph = PasswordHasher(
 
 def derive_key(password, salt):
     argon2_hash = ph.hash(password.decode() + salt.hex())
-    key = base64.urlsafe_b64encode(argon2_hash.encode()[:32])
-    return key
+    return argon2_hash.encode()[:32]
 
 
 def save_salt(salt, filename='salt.dat'):
@@ -32,12 +34,20 @@ def load_salt(filename='salt.dat'):
 
 
 def encrypt(message, key):
-    f = Fernet(key)
-    encrypted_message = f.encrypt(message.encode())
-    return encrypted_message
+    backend = default_backend()
+    algorithm = algorithms.AES(key)
+    iv = os.urandom(12)  # GCM standard
+    cipher = Cipher(algorithm, modes.GCM(iv), backend=backend)
+    encryptor = cipher.encryptor()
+    ct = encryptor.update(message.encode()) + encryptor.finalize()
+    return base64.urlsafe_b64encode(iv + encryptor.tag + ct)
 
 
 def decrypt(encrypted_message, key):
-    f = Fernet(key)
-    decrypted_message = f.decrypt(encrypted_message).decode()
-    return decrypted_message
+    backend = default_backend()
+    encrypted_message_bytes = base64.urlsafe_b64decode(encrypted_message)
+    iv, tag, ct = encrypted_message_bytes[:12], encrypted_message_bytes[12:28], encrypted_message_bytes[28:]
+    algorithm = algorithms.AES(key)
+    cipher = Cipher(algorithm, modes.GCM(iv, tag), backend=backend)
+    decryptor = cipher.decryptor()
+    return (decryptor.update(ct) + decryptor.finalize()).decode('utf-8')

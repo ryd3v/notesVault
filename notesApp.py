@@ -1,11 +1,11 @@
 import os
 import sys
 
-import cryptography
 from PyQt5.QtCore import QSize
+from PyQt5.QtGui import QPalette, QColor, QFont, QIcon, QFontDatabase
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, QInputDialog, \
     QLineEdit, QTextBrowser, QFileDialog, QSizePolicy, QSpacerItem, QMessageBox
-from PyQt5.QtGui import QPalette, QColor, QFont, QIcon, QFontDatabase
+from cryptography.exceptions import InvalidTag
 from markdown import markdown
 
 from crypto import encrypt, decrypt, derive_key, save_salt, load_salt
@@ -29,7 +29,7 @@ class NotesApp(QWidget):
             save_salt(existing_salt)
         dialog = QInputDialog(self)
         dialog.setInputMode(QInputDialog.TextInput)
-        dialog.setLabelText('Enter your password:')
+        dialog.setLabelText('Please enter a password to use the application.\n\nEnter your password:')
         dialog.setTextEchoMode(QLineEdit.Password)
         dialog.setFixedSize(400, 300)
         dialog.setWindowTitle('Encrypted Notes App')
@@ -145,10 +145,10 @@ class NotesApp(QWidget):
                     encrypted_note = note_file.read()
                 decrypted_note = decrypt(encrypted_note, self.key)
                 self.text_edit.setPlainText(decrypted_note)
-                self.render_markdown()  # Automatically render Markdown when a note is loaded
+                self.render_markdown()
             except FileNotFoundError:
                 self.text_edit.setPlainText("No saved notes found.")
-            except cryptography.fernet.InvalidToken:
+            except InvalidTag:
                 self.text_edit.setPlainText("Failed to decrypt. Incorrect key or corrupted data.")
 
 

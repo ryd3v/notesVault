@@ -4,7 +4,7 @@
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
-V2.0.3
+V2.0.4
 
 ![ALT](https://github.com/ryd3v/notesApp/blob/main/Screenshot_1.png)
 
@@ -20,17 +20,17 @@ ensure the privacy of your data.
 
 - Basic note-taking functionality
 - Create, edit, and save encrypted notes
-- Argon2 encryption for securing notes
-- AES-128 for encryption of notes
+- Argon2 Encryption 
+- AES-256-GCM Encryption for saved notes
 - Password-protected access to the application
 - Markdown support for rich text formatting
-- Markdown preview and toggle
+- Markdown preview and toggle button 
 - Dark mode for better readability
 - Cross-platform support (Windows, macOS, Linux)
 - Resizable window
 
 Enhanced security features include a randomly generated securely stored salt. Password-based encryption key derivation
-using Argon2 for Key Derivation: Replaced PBKDF2 with Argon2 for more secure key derivation.
+using Argon2 for Key Derivation.
 
 ## Password Validation
 
@@ -219,8 +219,8 @@ and performance.
 ### How We Use Argon2 in Encrypted Notes App
 
 In our application, we use Argon2id, a hybrid version combining Argon2i and Argon2d, to derive the encryption keys from
-the user's password. We have tuned Argon2 to use a minimum configuration of 19 MiB of memory, an iteration count of 2,
-and 1 degree of parallelism, balancing both security and performance.
+the user's password. We have tuned Argon2 to use a minimum configuration of 2 GiB of memory, an iteration count of 2,
+and 8 degree of parallelism, balancing both security and performance.
 
 By utilizing Argon2, we ensure that your notes are encrypted in a secure and efficient manner.
 
