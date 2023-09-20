@@ -29,10 +29,10 @@ class NotesApp(QWidget):
             save_salt(existing_salt)
         dialog = QInputDialog(self)
         dialog.setInputMode(QInputDialog.TextInput)
-        dialog.setLabelText('Please enter a password to use the application.\n\nEnter your password:')
+        dialog.setLabelText('Please enter a strong password to encrypt your notes securely using AES-256-GCM.\n\nEnter your password:')
         dialog.setTextEchoMode(QLineEdit.Password)
-        dialog.setFixedSize(400, 300)
-        dialog.setWindowTitle('Encrypted Notes App')
+        dialog.setFixedSize(500, 400)
+        dialog.setWindowTitle('NoteVault')
         ok = dialog.exec_()
         password = dialog.textValue()
         if ok:
@@ -98,17 +98,20 @@ class NotesApp(QWidget):
         button_layout.addWidget(self.toggle_preview_button)
 
         self.text_edit = QTextEdit()
+        self.text_edit.setStyleSheet("border: none; border-radius: 4px;")
         hbox.addWidget(self.text_edit)
 
         self.text_display = QTextBrowser()
+        self.text_display.setStyleSheet("border: none; border-radius: 4px;")
         hbox.addWidget(self.text_display)
-        button_layout.addItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        self.text_display.setVisible(False)
 
+        button_layout.addItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
         main_layout.addLayout(button_layout)
 
         self.setLayout(main_layout)
-        self.setWindowTitle('Encrypted Notes App')
-        self.resize(960, 540)
+        self.setWindowTitle('NoteVault')
+        self.resize(960, 640)
         self.show()
 
     def toggle_preview(self):
@@ -161,7 +164,7 @@ if __name__ == '__main__':
     font_families = QFontDatabase.applicationFontFamilies(font_id)
     if len(font_families) != 0:
         font = QFont(font_families[0])
-        font.setPointSize(13)
+        font.setPointSize(12)
         app.setFont(font)
 
     palette = QPalette()
