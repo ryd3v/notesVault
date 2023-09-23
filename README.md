@@ -1,4 +1,8 @@
-﻿# notesVault Encrypted Notes App
+![ALT](https://github.com/ryd3v/notesVault/blob/main/notesVault-logo-main-01.png)
+
+ ----
+ 
+ # notesVault Encrypted Notes App
 
 #### Ryan Collins 2023
 
