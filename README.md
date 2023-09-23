@@ -1,4 +1,4 @@
-﻿# Simple Encrypted Notes App
+﻿# notesVault Encrypted Notes App
 
 #### Ryan Collins 2023
 
@@ -53,29 +53,11 @@ Firstly, we import the necessary libraries like `cryptography` and our custom `c
 ### 2. Salt Generation and Storage
 When the app is initialized, a salt is either generated randomly or loaded from a file(salt.dat). This salt is crucial for the key derivation process. It's a random sequence of bytes that is used in combination with your password to generate a unique key.
 
-```python
-existing_salt = load_salt()
-if existing_salt is None:
-    existing_salt = os.urandom(16)
-    save_salt(existing_salt)
-```
-
 ### 3. User Password and Validation
 The password is obtained from you via a dialog box. This password is then validated to meet certain criteria like length and complexity, as noted above.
 
-```python
-dialog = QInputDialog(self)
-# ... set various properties of the dialog box
-ok = dialog.exec_()
-password = dialog.textValue()
-```
-
 ### 4. Key Derivation
 Your password and the generated/loaded salt are then used to derive a unique encryption key using Argon2 in the `crypto` module.
-
-```python
-self.key = derive_key(password.encode(), existing_salt)
-```
 
 ### 5. Text Encryption and Decryption
 When you save a note, the text is encrypted using the derived key before being saved to a file.
@@ -105,7 +87,7 @@ or
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/ryd3v/notesApp.git
+    git clone https://github.com/ryd3v/notesVault
     ```
 2. Navigate to the project directory and install the required packages:
     ```bash
