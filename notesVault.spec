@@ -1,5 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
-
+specpath = os.path.dirname(os.path.abspath(SPEC))
 
 block_cipher = None
 
@@ -8,7 +8,7 @@ a = Analysis(
     ['notesVault.py'],
     pathex=[],
     binaries=[],
-    datas=[('./icons/open.png', '.'), ('./icons/preview.png', '.'), ('./icons/save.png', '.'), ('./icons/single.png', '.')],
+    datas=[('icon.ico', '.'), ('./icons/open.png', '.'), ('./icons/preview.png', '.'), ('./icons/save.png', '.'), ('./icons/single.png', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -36,6 +36,7 @@ exe = EXE(
     upx_exclude=[],
     runtime_tmpdir=None,
     console=False,
+   icon='./icon.ico',
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,

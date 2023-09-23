@@ -1,14 +1,10 @@
-![ALT](https://github.com/ryd3v/notesVault/blob/main/notesVault-logo-main-01.png)
-
- ----
- 
- # notesVault Encrypted Notes App
+# notesVault Encrypted Notes App
 
 #### Ryan Collins 2023
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
-V2.0.6
+V2.0.7
 
 ![ALT](https://github.com/ryd3v/notesApp/blob/main/Screenshot_1.png)
 

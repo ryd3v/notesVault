@@ -49,6 +49,7 @@ def resource_path(relative_path):
 class NotesApp(QWidget):
     def __init__(self):
         super().__init__()
+        self.setWindowIcon(QIcon(resource_path("./icon.ico")))
         existing_salt = load_salt()
         if existing_salt is None:
             existing_salt = os.urandom(16)
