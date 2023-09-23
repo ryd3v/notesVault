@@ -5,7 +5,7 @@ block_cipher = None
 
 
 a = Analysis(
-    ['notesApp.py'],
+    ['notesVault.py'],
     pathex=[],
     binaries=[],
     datas=[('./icons/open.png', '.'), ('./icons/preview.png', '.'), ('./icons/save.png', '.'), ('./icons/single.png', '.')],
@@ -28,7 +28,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='notesApp',
+    name='notesVault',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

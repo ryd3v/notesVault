@@ -4,7 +4,7 @@
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
-V2.0.5
+V2.0.6
 
 ![ALT](https://github.com/ryd3v/notesApp/blob/main/Screenshot_1.png)
 
@@ -41,7 +41,7 @@ using Argon2 for Key Derivation.
 - Password should contain at least one special character [!@#$%^&*()-_+=<>?/]
 - Password is valid
 
-#### A 16-character password is recommended
+#### A 16-character password is recommended!
 
 ----
 
@@ -113,7 +113,7 @@ or
     ```
 3. Build the application using PyInstaller:
     ```bash
-    pyinstaller notesApp.spec
+    pyinstaller notesVault.spec
     ```
 
 ### Archlinux 

@@ -1,3 +1,29 @@
+# -----------------------------------------------------------------------------
+# Copyright (C) 2023 Ryan Collins
+#
+# Author: Ryan Collins
+# Email: hello@ryd3v
+# Social: @ryd3v
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+# -----------------------------------------------------------------------------
+
 import os
 import sys
 
@@ -29,7 +55,8 @@ class NotesApp(QWidget):
             save_salt(existing_salt)
         dialog = QInputDialog(self)
         dialog.setInputMode(QInputDialog.TextInput)
-        dialog.setLabelText('Please enter a strong password to encrypt your notes securely using AES-256-GCM.\n\nEnter your password:')
+        dialog.setLabelText(
+            "Please enter a strong password to encrypt your notes securely using AES-256-GCM.\n\nEnter your password:")
         dialog.setTextEchoMode(QLineEdit.Password)
         dialog.setFixedSize(500, 400)
         dialog.setWindowTitle('NoteVault')
