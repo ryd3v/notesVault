@@ -20,7 +20,7 @@ ensure the privacy of your data.
 
 - Basic note-taking functionality
 - Create, edit, and save encrypted notes
-- Argon2 Encryption 
+- Replaced Argon2 hashing with bcrypt 
 - AES-256-GCM Encryption for saved notes
 - Password-protected access to the application
 - Markdown support for rich text formatting
@@ -42,35 +42,6 @@ using Argon2 for Key Derivation.
 - Password is valid
 
 #### A 16-character password is recommended!
-
-----
-
-## How our app works:
-
-### 1. Importing Libraries
-Firstly, we import the necessary libraries like `cryptography` and our custom `crypto` module to handle cryptographic operations.
-
-### 2. Salt Generation and Storage
-When the app is initialized, a salt is either generated randomly or loaded from a file(salt.dat). This salt is crucial for the key derivation process. It's a random sequence of bytes that is used in combination with your password to generate a unique key.
-
-### 3. User Password and Validation
-The password is obtained from you via a dialog box. This password is then validated to meet certain criteria like length and complexity, as noted above.
-
-### 4. Key Derivation
-Your password and the generated/loaded salt are then used to derive a unique encryption key using Argon2 in the `crypto` module.
-
-### 5. Text Encryption and Decryption
-When you save a note, the text is encrypted using the derived key before being saved to a file.
-
-### 6. Key Functions and Algorithms
-
-#### Argon2 (Current Version)
-We are using Argon2, a more modern and secure key derivation function. Argon2 is resistant to GPU cracking attacks and offers better security features. Argon2id, a hybrid of Argon2i and Argon2d, which provides both side-channel attack resistance and brute-force attack resistance.
-
-### 7. Data Storage
-Finally, the encrypted note is stored in a `.enc` file. The salt is also stored, as it is required for decryption.
-
----
 
 ## Installation
 
@@ -170,31 +141,6 @@ The encryption key is used for both encrypting and decrypting the notes.
 
 The `derive_key` function typically uses a key derivation function (KDF) like PBKDF2, bcrypt, or scrypt to produce the
 encryption key from the salt and the password.
-
-## Argon2 Encryption Algorithm
-
-### What is Argon2?
-
-Argon2 is a key derivation function that was selected as the winner of the Password Hashing Competition in 2015. It's
-designed to be secure against a range of attacks, including side-channel attacks and timing attacks. Argon2 is highly
-customizable, which allows developers to configure the time, memory, and parallelism factors to balance between security
-and performance.
-
-### Why Use Argon2?
-
-- **Security**: Argon2 is resistant to a wide array of attacks, including timing attacks and side-channel attacks.
-- **Customizable**: Parameters for time, memory, and parallelism can be adjusted based on the security requirements
-  and hardware capabilities.
-- **Widely Accepted**: Being the winner of the Password Hashing Competition, it is recognized and recommended by
-  security experts.
-
-### How We Use Argon2 in Encrypted Notes App
-
-In our application, we use Argon2id, a hybrid version combining Argon2i and Argon2d, to derive the encryption keys from
-the user's password. We have tuned Argon2 to use a minimum configuration of 2 GiB of memory, an iteration count of 2,
-and 8 degree of parallelism, balancing both security and performance.
-
-By utilizing Argon2, we ensure that your notes are encrypted in a secure and efficient manner.
 
 ## AES-256-GCM Encryption
 
