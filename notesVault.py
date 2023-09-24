@@ -24,17 +24,71 @@
 # SOFTWARE.
 # -----------------------------------------------------------------------------
 
+import base64
 import os
 import sys
+import bcrypt
 
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QPalette, QColor, QFont, QIcon, QFontDatabase
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, QInputDialog, \
     QLineEdit, QTextBrowser, QFileDialog, QSizePolicy, QSpacerItem, QMessageBox
 from cryptography.exceptions import InvalidTag
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.ciphers import algorithms, modes, Cipher
 from markdown import markdown
 
-from crypto import encrypt, decrypt, derive_key, save_salt, load_salt
+
+def derive_key(password, salt):
+    bcrypt_hash = bcrypt.hashpw(password, salt)
+    return bcrypt_hash[:32]
+
+
+def save_salt(salt, filename='key.dat'):
+    with open(filename, 'wb') as f:
+        f.write(salt)
+
+
+def load_salt(filename='key.dat'):
+    try:
+        with open(filename, 'rb') as f:
+            return f.read()
+    except FileNotFoundError:
+        return None
+
+
+def save_hash(bcrypt_hash, filename='hash.dat'):
+    with open(filename, 'wb') as f:
+        f.write(bcrypt_hash)
+
+
+# New function to load bcrypt hash
+def load_hash(filename='hash.dat'):
+    try:
+        with open(filename, 'rb') as f:
+            return f.read()
+    except FileNotFoundError:
+        return None
+
+
+def encrypt(message, key):
+    backend = default_backend()
+    algorithm = algorithms.AES(key)
+    iv = os.urandom(12)  # GCM standard
+    cipher = Cipher(algorithm, modes.GCM(iv), backend=backend)
+    encryptor = cipher.encryptor()
+    ct = encryptor.update(message.encode()) + encryptor.finalize()
+    return base64.urlsafe_b64encode(iv + encryptor.tag + ct)
+
+
+def decrypt(encrypted_message, key):
+    backend = default_backend()
+    encrypted_message_bytes = base64.urlsafe_b64decode(encrypted_message)
+    iv, tag, ct = encrypted_message_bytes[:12], encrypted_message_bytes[12:28], encrypted_message_bytes[28:]
+    algorithm = algorithms.AES(key)
+    cipher = Cipher(algorithm, modes.GCM(iv, tag), backend=backend)
+    decryptor = cipher.decryptor()
+    return (decryptor.update(ct) + decryptor.finalize()).decode('utf-8')
 
 
 def resource_path(relative_path):
@@ -46,13 +100,28 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 
-class NotesApp(QWidget):
+def validate_password(password):
+    if len(password) < 8:
+        return False, "Password must be at least 8 characters long."
+    if not any(char.isupper() for char in password):
+        return False, "Password must contain at least one uppercase letter."
+    if not any(char.islower() for char in password):
+        return False, "Password must contain at least one lowercase letter."
+    if not any(char.isdigit() for char in password):
+        return False, "Password must contain at least one numeric digit."
+    special_characters = "!@#$%^&*()-_+=<>?/"
+    if not any(char in special_characters for char in password):
+        return False, "Password must contain at least one special character."
+    return True, "Password is valid."
+
+
+class NotesVault(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowIcon(QIcon(resource_path("./icon.ico")))
         existing_salt = load_salt()
         if existing_salt is None:
-            existing_salt = os.urandom(16)
+            existing_salt = bcrypt.gensalt()
             save_salt(existing_salt)
         dialog = QInputDialog(self)
         dialog.setInputMode(QInputDialog.TextInput)
@@ -62,31 +131,20 @@ class NotesApp(QWidget):
         dialog.setFixedSize(500, 400)
         dialog.setWindowTitle('NoteVault')
         ok = dialog.exec_()
-        password = dialog.textValue()
+        password = dialog.textValue().encode('utf-8')
         if ok:
-            is_valid, message = self.validate_password(password)
-            if is_valid:
-                self.key = derive_key(password.encode(), existing_salt)
+            saved_hash = load_hash()  # Load the saved hash
+            if saved_hash is None or bcrypt.checkpw(password, saved_hash):
+                if saved_hash is None:
+                    new_hash = bcrypt.hashpw(password, existing_salt)
+                    save_hash(new_hash)
+                self.key = derive_key(password, existing_salt)
                 self.initUI()
             else:
-                QMessageBox.warning(self, "Invalid Password", message)
+                QMessageBox.warning(self, "Invalid Password", "Incorrect password.")
                 self.close()
         else:
             self.close()
-
-    def validate_password(self, password):
-        if len(password) < 8:
-            return False, "Password must be at least 8 characters long."
-        if not any(char.isupper() for char in password):
-            return False, "Password must contain at least one uppercase letter."
-        if not any(char.islower() for char in password):
-            return False, "Password must contain at least one lowercase letter."
-        if not any(char.isdigit() for char in password):
-            return False, "Password must contain at least one numeric digit."
-        special_characters = "!@#$%^&*()-_+=<>?/"
-        if not any(char in special_characters for char in password):
-            return False, "Password must contain at least one special character."
-        return True, "Password is valid."
 
     def initUI(self):
         main_layout = QVBoxLayout()
@@ -211,5 +269,5 @@ if __name__ == '__main__':
     palette.setColor(QPalette.HighlightedText, QColor(0, 0, 0))
     app.setPalette(palette)
 
-    ex = NotesApp()
+    ex = NotesVault()
     sys.exit(app.exec_())
