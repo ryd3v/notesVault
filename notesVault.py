@@ -4,7 +4,7 @@
 # Author: Ryan Collins
 # Email: hello@ryd3v
 # Social: @ryd3v
-#
+# Version: 3.1.0
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -29,14 +29,15 @@ import os
 import sys
 import bcrypt
 
-from PyQt5.QtCore import QSize
-from PyQt5.QtGui import QPalette, QColor, QFont, QIcon, QFontDatabase
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, QInputDialog, \
+from PyQt6.QtCore import QSize
+from PyQt6.QtGui import QPalette, QColor, QFont, QIcon, QFontDatabase
+from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, QInputDialog, \
     QLineEdit, QTextBrowser, QFileDialog, QSizePolicy, QSpacerItem, QMessageBox
 from cryptography.exceptions import InvalidTag
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.ciphers import algorithms, modes, Cipher
 from markdown import markdown
+import qdarktheme
 
 
 def derive_key(password, salt):
@@ -124,13 +125,13 @@ class NotesVault(QWidget):
             existing_salt = bcrypt.gensalt()
             save_salt(existing_salt)
         dialog = QInputDialog(self)
-        dialog.setInputMode(QInputDialog.TextInput)
+        dialog.inputMode = QInputDialog.InputMode.TextInput
         dialog.setLabelText(
             "Please enter a strong password to encrypt your notes securely using AES-256-GCM.\n\nEnter your password:")
-        dialog.setTextEchoMode(QLineEdit.Password)
+        dialog.setTextEchoMode(QLineEdit.EchoMode.Password)
         dialog.setFixedSize(500, 400)
         dialog.setWindowTitle('NoteVault')
-        ok = dialog.exec_()
+        ok = dialog.exec()
         password = dialog.textValue().encode('utf-8')
         if ok:
             saved_hash = load_hash()  # Load the saved hash
@@ -153,7 +154,7 @@ class NotesVault(QWidget):
         icon_size = QSize(24, 24)
         button_font = QFont("Arial", 10)
         button_layout = QHBoxLayout()
-        button_layout.addItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        button_layout.addItem(QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum))
 
         self.save_button = QPushButton("Save")
         self.save_button.setFont(button_font)
@@ -192,11 +193,12 @@ class NotesVault(QWidget):
         hbox.addWidget(self.text_display)
         self.text_display.setVisible(False)
 
-        button_layout.addItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        button_layout.addItem(QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum))
+
         main_layout.addLayout(button_layout)
 
         self.setLayout(main_layout)
-        self.setWindowTitle('NoteVault')
+        self.setWindowTitle('NotesVault')
         self.resize(960, 640)
         self.show()
 
@@ -209,10 +211,7 @@ class NotesVault(QWidget):
         self.text_display.setHtml(html_text)
 
     def save_notes(self):
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        filename, _ = QFileDialog.getSaveFileName(self, "Save Note", "", "Encrypted Notes Files (*.enc);;All Files (*)",
-                                                  options=options)
+        filename, _ = QFileDialog.getSaveFileName(self, "Save Note", "", "Encrypted Notes Files (*.enc);;All Files (*)")
 
         if filename:
             if not filename.endswith('.enc'):
@@ -223,10 +222,7 @@ class NotesVault(QWidget):
                 note_file.write(encrypted_note)
 
     def load_notes(self):
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        filename, _ = QFileDialog.getOpenFileName(self, "Open Note", "", "Encrypted Notes Files (*.enc);;All Files (*)",
-                                                  options=options)
+        filename, _ = QFileDialog.getOpenFileName(self, "Open Note", "", "Encrypted Notes Files (*.enc);;All Files (*)")
 
         if filename:
             try:
@@ -243,31 +239,6 @@ class NotesVault(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-
-    app.setStyle("Fusion")
-
-    font_id = QFontDatabase.addApplicationFont("./fonts/Roboto-Regular.ttf")
-    font_families = QFontDatabase.applicationFontFamilies(font_id)
-    if len(font_families) != 0:
-        font = QFont(font_families[0])
-        font.setPointSize(12)
-        app.setFont(font)
-
-    palette = QPalette()
-    palette.setColor(QPalette.Window, QColor(53, 53, 53))
-    palette.setColor(QPalette.WindowText, QColor(255, 255, 255))
-    palette.setColor(QPalette.Base, QColor(25, 25, 25))
-    palette.setColor(QPalette.AlternateBase, QColor(53, 53, 53))
-    palette.setColor(QPalette.ToolTipBase, QColor(0, 0, 0))
-    palette.setColor(QPalette.ToolTipText, QColor(255, 255, 255))
-    palette.setColor(QPalette.Text, QColor(255, 255, 255))
-    palette.setColor(QPalette.Button, QColor(53, 53, 53))
-    palette.setColor(QPalette.ButtonText, QColor(255, 255, 255))
-    palette.setColor(QPalette.BrightText, QColor(255, 0, 0))
-    palette.setColor(QPalette.Link, QColor(42, 130, 218))
-    palette.setColor(QPalette.Highlight, QColor(42, 130, 218))
-    palette.setColor(QPalette.HighlightedText, QColor(0, 0, 0))
-    app.setPalette(palette)
-
+    qdarktheme.setup_theme("auto")
     ex = NotesVault()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
