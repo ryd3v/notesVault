@@ -4,7 +4,7 @@
 # Author: Ryan Collins
 # Email: hello@ryd3v
 # Social: @ryd3v
-# Version: 3.1.0
+# Version: 3.1.1
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -172,14 +172,14 @@ class NotesVault(QWidget):
 
         self.markdown_button = QPushButton("Markdown")
         self.markdown_button.setFont(button_font)
-        self.markdown_button.setIcon(QIcon(resource_path("preview.png")))
+        self.markdown_button.setIcon(QIcon(resource_path("single.png")))
         self.markdown_button.setIconSize(icon_size)
         self.markdown_button.clicked.connect(self.render_markdown)
         button_layout.addWidget(self.markdown_button)
 
         self.toggle_preview_button = QPushButton("Preview")
         self.toggle_preview_button.setFont(button_font)
-        self.toggle_preview_button.setIcon(QIcon(resource_path("single.png")))
+        self.toggle_preview_button.setIcon(QIcon(resource_path("preview.png")))
         self.toggle_preview_button.setIconSize(icon_size)
         self.toggle_preview_button.clicked.connect(self.toggle_preview)
         button_layout.addWidget(self.toggle_preview_button)
