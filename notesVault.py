@@ -4,7 +4,7 @@
 # Author: Ryan Collins
 # Email: hello@ryd3v
 # Social: @ryd3v
-# Version: 3.1.1
+# Version: 4.0.0
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -23,53 +23,57 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 # -----------------------------------------------------------------------------
-
 import base64
 import os
 import sys
-import bcrypt
 
+import qdarktheme
 from PyQt6.QtCore import QSize
-from PyQt6.QtGui import QPalette, QColor, QFont, QIcon, QFontDatabase
+from PyQt6.QtGui import QFont, QIcon
 from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, QInputDialog, \
     QLineEdit, QTextBrowser, QFileDialog, QSizePolicy, QSpacerItem, QMessageBox
 from cryptography.exceptions import InvalidTag
 from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.ciphers import algorithms, modes, Cipher
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from markdown import markdown
-import qdarktheme
 
 
-def derive_key(password, salt):
-    bcrypt_hash = bcrypt.hashpw(password, salt)
-    return bcrypt_hash[:32]
-
-
-def save_salt(salt, filename='key.dat'):
-    with open(filename, 'wb') as f:
-        f.write(salt)
-
-
-def load_salt(filename='key.dat'):
+def resource_path(relative_path):
     try:
-        with open(filename, 'rb') as f:
-            return f.read()
-    except FileNotFoundError:
-        return None
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 
 
-def save_hash(bcrypt_hash, filename='hash.dat'):
-    with open(filename, 'wb') as f:
-        f.write(bcrypt_hash)
+def derive_master_key(password: bytes, salt: bytes) -> bytes:
+    kdf = PBKDF2HMAC(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=salt,
+        iterations=100000,
+        backend=default_backend()
+    )
+    return kdf.derive(password)
 
 
-# New function to load bcrypt hash
-def load_hash(filename='hash.dat'):
-    try:
-        with open(filename, 'rb') as f:
-            return f.read()
-    except FileNotFoundError:
-        return None
+def generate_db_encryption_key() -> bytes:
+    return os.urandom(32)  # 256 bits
+
+
+def encrypt_key(db_key: bytes, master_key: bytes) -> bytes:
+    aesgcm = AESGCM(master_key)
+    nonce = os.urandom(12)
+    return nonce + aesgcm.encrypt(nonce, db_key, None)
+
+
+def decrypt_key(encrypted_db_key: bytes, master_key: bytes) -> bytes:
+    aesgcm = AESGCM(master_key)
+    nonce, ct = encrypted_db_key[:12], encrypted_db_key[12:]
+    return aesgcm.decrypt(nonce, ct, None)
 
 
 def encrypt(message, key):
@@ -78,7 +82,7 @@ def encrypt(message, key):
     iv = os.urandom(12)  # GCM standard
     cipher = Cipher(algorithm, modes.GCM(iv), backend=backend)
     encryptor = cipher.encryptor()
-    ct = encryptor.update(message.encode()) + encryptor.finalize()
+    ct = encryptor.update(message) + encryptor.finalize()
     return base64.urlsafe_b64encode(iv + encryptor.tag + ct)
 
 
@@ -92,60 +96,77 @@ def decrypt(encrypted_message, key):
     return (decryptor.update(ct) + decryptor.finalize()).decode('utf-8')
 
 
-def resource_path(relative_path):
+def validate_password(entered_password: bytes, salt: bytes, stored_verifier: bytes) -> bool:
+    key = derive_master_key(entered_password, salt)
     try:
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
+        decrypted_data = decrypt(stored_verifier, key)
+        return decrypted_data == b"known_plaintext"
+    except (InvalidTag, ValueError):
+        return False
 
-    return os.path.join(base_path, relative_path)
+
+def create_password_verifier(key: bytes) -> bytes:
+    known_plaintext = b"known_plaintext"
+    return encrypt(known_plaintext, key)
 
 
-def validate_password(password):
-    if len(password) < 8:
-        return False, "Password must be at least 8 characters long."
-    if not any(char.isupper() for char in password):
-        return False, "Password must contain at least one uppercase letter."
-    if not any(char.islower() for char in password):
-        return False, "Password must contain at least one lowercase letter."
-    if not any(char.isdigit() for char in password):
-        return False, "Password must contain at least one numeric digit."
-    special_characters = "!@#$%^&*()-_+=<>?/"
-    if not any(char in special_characters for char in password):
-        return False, "Password must contain at least one special character."
-    return True, "Password is valid."
+def encrypt_notes(notes: str, key: bytes) -> bytes:
+    aesgcm = AESGCM(key)
+    nonce = os.urandom(12)
+    return nonce + aesgcm.encrypt(nonce, notes.encode(), None)
+
+
+def decrypt_notes(encrypted_notes: bytes, key: bytes) -> str:
+    aesgcm = AESGCM(key)
+    nonce, ct = encrypted_notes[:12], encrypted_notes[12:]
+    return aesgcm.decrypt(nonce, ct, None).decode()
 
 
 class NotesVault(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowIcon(QIcon(resource_path("./icon.ico")))
-        existing_salt = load_salt()
-        if existing_salt is None:
-            existing_salt = bcrypt.gensalt()
-            save_salt(existing_salt)
+
+        try:
+            with open('key.enc', 'rb') as f:
+                data = f.read()
+            salt, encrypted_db_key = data[:16], data[16:]
+        except FileNotFoundError:
+            password, ok = self.prompt_password()
+            if ok:
+                salt = os.urandom(16)  # 128 bits
+                master_key = derive_master_key(password, salt)
+                db_encryption_key = generate_db_encryption_key()
+                encrypted_db_key = encrypt_key(db_encryption_key, master_key)
+                with open('key.enc', 'wb') as f:
+                    f.write(salt + encrypted_db_key)
+                self.master_key = master_key
+                self.db_encryption_key = db_encryption_key
+                self.initUI()
+            else:
+                self.close()
+        else:
+            password, ok = self.prompt_password()
+            if ok:
+                self.master_key = derive_master_key(password, salt)
+                self.db_encryption_key = decrypt_key(encrypted_db_key, self.master_key)
+                self.initUI()
+            else:
+                self.close()
+
+    def prompt_password(self):
         dialog = QInputDialog(self)
         dialog.inputMode = QInputDialog.InputMode.TextInput
         dialog.setLabelText(
-            "Please enter a strong password to encrypt your notes securely using AES-256-GCM.\n\nEnter your password:")
+            "Please enter a strong password to encrypt your notes securely.\n\nEnter your password:")
         dialog.setTextEchoMode(QLineEdit.EchoMode.Password)
         dialog.setFixedSize(500, 400)
-        dialog.setWindowTitle('NoteVault')
+        dialog.setWindowTitle('NotesVault')
+
         ok = dialog.exec()
         password = dialog.textValue().encode('utf-8')
-        if ok:
-            saved_hash = load_hash()  # Load the saved hash
-            if saved_hash is None or bcrypt.checkpw(password, saved_hash):
-                if saved_hash is None:
-                    new_hash = bcrypt.hashpw(password, existing_salt)
-                    save_hash(new_hash)
-                self.key = derive_key(password, existing_salt)
-                self.initUI()
-            else:
-                QMessageBox.warning(self, "Invalid Password", "Incorrect password.")
-                self.close()
-        else:
-            self.close()
+        return password, ok
+
 
     def initUI(self):
         main_layout = QVBoxLayout()
@@ -212,29 +233,29 @@ class NotesVault(QWidget):
 
     def save_notes(self):
         filename, _ = QFileDialog.getSaveFileName(self, "Save Note", "", "Encrypted Notes Files (*.enc);;All Files (*)")
-
         if filename:
             if not filename.endswith('.enc'):
                 filename += '.enc'
             note_text = self.text_edit.toPlainText()
-            encrypted_note = encrypt(note_text, self.key)
+            encrypted_note = encrypt_notes(note_text, self.db_encryption_key)
             with open(filename, "wb") as note_file:
                 note_file.write(encrypted_note)
 
     def load_notes(self):
         filename, _ = QFileDialog.getOpenFileName(self, "Open Note", "", "Encrypted Notes Files (*.enc);;All Files (*)")
-
         if filename:
             try:
+                with open('key.enc', 'rb') as f:
+                    encrypted_db_key = f.read()
+                    salt, encrypted_db_key = encrypted_db_key[:16], encrypted_db_key[16:]  # Fixed line
                 with open(filename, "rb") as note_file:
                     encrypted_note = note_file.read()
-                decrypted_note = decrypt(encrypted_note, self.key)
+                self.db_encryption_key = decrypt_key(encrypted_db_key, self.master_key)
+                decrypted_note = decrypt_notes(encrypted_note, self.db_encryption_key)
                 self.text_edit.setPlainText(decrypted_note)
                 self.render_markdown()
-            except FileNotFoundError:
-                self.text_edit.setPlainText("No saved notes found.")
-            except InvalidTag:
-                self.text_edit.setPlainText("Failed to decrypt. Incorrect key or corrupted data.")
+            except (FileNotFoundError, InvalidTag, ValueError):
+                QMessageBox.warning(self, "Error", "Failed to decrypt. Incorrect password or corrupted data.")
 
 
 if __name__ == '__main__':

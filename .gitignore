@@ -3,3 +3,4 @@ salt.dat
 note.enc
 /build/
 /dist/
+/key.enc
