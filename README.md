@@ -1,4 +1,3 @@
-
 # NotesVault
 ![ALT](https://github.com/ryd3v/notesVault/blob/main/Screenshot-1.png)
 ![ALT](https://github.com/ryd3v/notesVault/blob/main/Screenshot-2.png)
@@ -12,7 +11,7 @@ NotesVault is a secure notes application that allows you to create, save, and lo
 - **Create Notes**: Easily create new notes with a simple and intuitive interface.
 - **Save and Load**: Save your notes to disk in an encrypted format and load them back when needed.
 - **Markdown Support**: Render your notes in Markdown format for better readability.
-- **Strong Encryption**: Utilizes AES-256-GCM for note encryption and bcrypt for password hashing.
+- **Strong Encryption**: Utilizes AES-256-GCM for note encryption and PBKDF2 for password-based key derivation.
 
 ## Algorithms Used
 
@@ -22,11 +21,11 @@ NotesVault is a secure notes application that allows you to create, save, and lo
 - **Why**: Provides both encryption and integrity verification.
 - **How**: Encrypts the notes using a key derived from the user's password.
 
-### bcrypt
+### PBKDF2 (Password-Based Key Derivation Function 2)
 
-- **What**: A cryptographic hashing algorithm.
-- **Why**: For securely hashing and verifying user passwords.
-- **How**: Hashes the user's password and saves it. Verifies the hash against entered passwords.
+- **What**: A cryptographic key derivation function.
+- **Why**: Derives a cryptographic key from the user's password to ensure secure encryption and decryption.
+- **How**: Uses the user's password along with a salt value to derive a key for encrypting and decrypting notes.
 
 ## Usage
 
@@ -37,9 +36,8 @@ NotesVault is a secure notes application that allows you to create, save, and lo
 
 ## Dependencies
 
-- PyQt5: For the graphical user interface.
-- cryptography: For AES-256-GCM encryption.
-- bcrypt: For password hashing.
+- PyQt6: For the graphical user interface.
+- cryptography: For AES-256-GCM encryption and PBKDF2 key derivation.
 - Markdown: For rendering Markdown text.
 
 ## How to Install
@@ -55,4 +53,3 @@ Contributions are welcome! Please read the contributing guidelines before submit
 ## License
 
 This project is licensed under the MIT License.
-
