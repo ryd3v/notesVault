@@ -15,14 +15,13 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
 # -----------------------------------------------------------------------------
+"""The software is provided "as is", without any guarantee of any kind, express or implied. This includes,
+but is not limited to, the warranties of merchantability, fitness for a particular purpose, and noninfringement. The
+authors or copyright holders bear no liability for any claims, damages, or other liabilities that may arise,
+whether in an action of contract, tort, or otherwise, from, in connection with, or in relation to the software,
+its use, or other dealings with the software."""
+
 import base64
 import os
 import sys

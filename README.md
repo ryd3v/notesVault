@@ -53,3 +53,7 @@ Contributions are welcome! Please read the contributing guidelines before submit
 ## License
 
 This project is licensed under the MIT License.
+
+## Disclaimer 
+
+The software is provided "as is", without any guarantee of any kind, express or implied. This includes, but is not limited to, the warranties of merchantability, fitness for a particular purpose, and noninfringement. The authors or copyright holders bear no liability for any claims, damages, or other liabilities that may arise, whether in an action of contract, tort, or otherwise, from, in connection with, or in relation to the software, its use, or other dealings with the software.
