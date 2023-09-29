@@ -54,7 +54,7 @@ def derive_master_key(password: bytes, salt: bytes) -> bytes:
         algorithm=hashes.SHA256(),
         length=32,
         salt=salt,
-        iterations=100000,
+        iterations=650000,
         backend=default_backend()
     )
     return kdf.derive(password)
