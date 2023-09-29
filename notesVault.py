@@ -4,7 +4,7 @@
 # Author: Ryan Collins
 # Email: hello@ryd3v
 # Social: @ryd3v
-# Version: 4.0.0
+# Version: 4.0.1
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -26,7 +26,7 @@
 import base64
 import os
 import sys
-
+import logging
 import qdarktheme
 from PyQt6.QtCore import QSize
 from PyQt6.QtGui import QFont, QIcon
@@ -148,9 +148,18 @@ class NotesVault(QWidget):
         else:
             password, ok = self.prompt_password()
             if ok:
-                self.master_key = derive_master_key(password, salt)
-                self.db_encryption_key = decrypt_key(encrypted_db_key, self.master_key)
-                self.initUI()
+                try:
+                    self.master_key = derive_master_key(password, salt)
+                    self.db_encryption_key = decrypt_key(encrypted_db_key, self.master_key)
+                    self.initUI()
+                except InvalidTag:
+                    logging.exception("Decryption failed due to invalid tag, possibly wrong password")
+                    QMessageBox.warning(self, "Error", "Failed to decrypt. Incorrect password entered.")
+                    self.close()
+                except Exception as e:
+                    logging.exception("An unexpected error occured")
+                    QMessageBox.warning(self, "Error", f"An unexpected error occured: {str(e)}")
+                    self.close()
             else:
                 self.close()
 
@@ -254,8 +263,18 @@ class NotesVault(QWidget):
                 decrypted_note = decrypt_notes(encrypted_note, self.db_encryption_key)
                 self.text_edit.setPlainText(decrypted_note)
                 self.render_markdown()
-            except (FileNotFoundError, InvalidTag, ValueError):
+            except FileNotFoundError:
+                logging.exception("File not found")
+                QMessageBox.warning(self, "Error", "The specified file could not be found.")
+            except InvalidTag:
+                logging.exception("Decryption failed due to invalid tag")
                 QMessageBox.warning(self, "Error", "Failed to decrypt. Incorrect password or corrupted data.")
+            except ValueError:
+                logging.exception("Value error occurred")
+                QMessageBox.warning(self, "Error", "An error occurred while processing the file.")
+            except Exception as e:
+                logging.exception("An unexpected error occurred")
+                QMessageBox.warning(self, "Error", f"An unexpected error occurred: {str(e)}")
 
 
 if __name__ == '__main__':
