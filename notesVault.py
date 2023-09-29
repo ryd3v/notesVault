@@ -157,8 +157,8 @@ class NotesVault(QWidget):
                     QMessageBox.warning(self, "Error", "Failed to decrypt. Incorrect password entered.")
                     self.close()
                 except Exception as e:
-                    logging.exception("An unexpected error occured")
-                    QMessageBox.warning(self, "Error", f"An unexpected error occured: {str(e)}")
+                    logging.exception("An unexpected error occurred")
+                    QMessageBox.warning(self, "Error", f"An unexpected error occurred: {str(e)}")
                     self.close()
             else:
                 self.close()
