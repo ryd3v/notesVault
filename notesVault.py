@@ -175,7 +175,6 @@ class NotesVault(QWidget):
         password = dialog.textValue().encode('utf-8')
         return password, ok
 
-
     def initUI(self):
         main_layout = QVBoxLayout()
         hbox = QHBoxLayout()
