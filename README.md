@@ -35,6 +35,8 @@ NotesVault application.
       password along with the salt to derive a 32-byte (256-bit) master key. This iterative process ensures that
       brute-force or dictionary attacks are computationally expensive.
 
+***Note**, a 5 word, digit separator password is suggested, example: ``Dreamless64Malt68Wad52Expel03Twenty1``
+
 ## Notes Encryption and Decryption:
 
 1. **Database Encryption Key Generation**:
