@@ -28,9 +28,10 @@ import sys
 import logging
 import qdarktheme
 from PyQt6.QtCore import QSize
-from PyQt6.QtGui import QFont, QIcon
-from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, QInputDialog, \
-    QLineEdit, QTextBrowser, QFileDialog, QSizePolicy, QSpacerItem, QMessageBox
+from PyQt6.QtGui import QFont, QIcon, QAction
+from PyQt6.QtWidgets import QMenuBar, QMenu, QApplication, QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, \
+    QInputDialog, \
+    QLineEdit, QTextBrowser, QFileDialog, QSizePolicy, QSpacerItem, QMessageBox, QDialog, QLabel
 from cryptography.exceptions import InvalidTag
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
@@ -166,19 +167,66 @@ class NotesVault(QWidget):
         dialog = QInputDialog(self)
         dialog.inputMode = QInputDialog.InputMode.TextInput
         dialog.setLabelText(
-            "Please enter a strong password to encrypt your notes securely.\n\nEnter your password:")
+            "Please enter a strong password to encrypt your notes securely.\n\nA 5 word, digit separator password is "
+            "suggested.\n\nPlease Enter your password:")
         dialog.setTextEchoMode(QLineEdit.EchoMode.Password)
         dialog.setFixedSize(500, 400)
-        dialog.setWindowTitle('NotesVault')
+        dialog.setWindowTitle('Notes Vault a secure notes application')
 
         ok = dialog.exec()
         password = dialog.textValue().encode('utf-8')
         return password, ok
 
     def initUI(self):
+        menu_bar = QMenuBar(self)
+        file_menu = menu_bar.addMenu('File')
+        about_menu = menu_bar.addMenu('About')
+
+        save_action = QAction('Save', self)
+        save_action.triggered.connect(self.save_notes)
+        file_menu.addAction(save_action)
+
+        open_action = QAction('Open', self)
+        open_action.triggered.connect(self.load_notes)
+        file_menu.addAction(open_action)
+
+        markdown_action = QAction('Markdown', self)
+        markdown_action.triggered.connect(self.render_markdown)
+        file_menu.addAction(markdown_action)
+
+        preview_action = QAction('Preview', self)
+        preview_action.triggered.connect(self.toggle_preview)
+        file_menu.addAction(preview_action)
+
+        close_action = QAction('Close', self)
+        close_action.triggered.connect(self.close)
+        file_menu.addAction(close_action)
+
+        about_action = QAction('About Notes Vault', self)
+        about_action.triggered.connect(self.show_about_dialog)
+        about_menu.addAction(about_action)
+
         main_layout = QVBoxLayout()
         hbox = QHBoxLayout()
         main_layout.addLayout(hbox)
+
+        text_edit_layout = QVBoxLayout()
+        text_display_layout = QVBoxLayout()
+        text_edit_layout.setContentsMargins(0, 20, 0, 0)
+        text_display_layout.setContentsMargins(0, 20, 0, 0)
+
+        self.text_edit = QTextEdit()
+        self.text_edit.setStyleSheet("border: none; border-radius: 4px;")
+        text_edit_layout.addWidget(self.text_edit)
+
+        self.text_display = QTextBrowser()
+        self.text_display.setStyleSheet("border: none; border-radius: 4px;")
+        text_display_layout.addWidget(self.text_display)
+        self.text_display.setVisible(False)
+
+        hbox.addLayout(text_edit_layout)
+        hbox.addLayout(text_display_layout)
+
         icon_size = QSize(24, 24)
         button_font = QFont("Arial", 10)
         button_layout = QHBoxLayout()
@@ -212,23 +260,27 @@ class NotesVault(QWidget):
         self.toggle_preview_button.clicked.connect(self.toggle_preview)
         button_layout.addWidget(self.toggle_preview_button)
 
-        self.text_edit = QTextEdit()
-        self.text_edit.setStyleSheet("border: none; border-radius: 4px;")
-        hbox.addWidget(self.text_edit)
-
-        self.text_display = QTextBrowser()
-        self.text_display.setStyleSheet("border: none; border-radius: 4px;")
-        hbox.addWidget(self.text_display)
-        self.text_display.setVisible(False)
-
         button_layout.addItem(QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum))
 
         main_layout.addLayout(button_layout)
 
         self.setLayout(main_layout)
-        self.setWindowTitle('NotesVault')
+        self.setWindowTitle('Notes Vault')
         self.resize(960, 640)
         self.show()
+
+    def show_about_dialog(self):
+        about_dialog = QDialog(self)
+        about_dialog.setWindowTitle('Notes Vault')
+        about_layout = QVBoxLayout(about_dialog)
+        about_label = QLabel(
+            "Notes Vault v4.0.2\n"
+            "Author: Ryan Collins\n"
+            "Email: hello@ryd3v\n"
+            "Website: https://github.com/ryd3v/notesVault\n"
+        )
+        about_layout.addWidget(about_label)
+        about_dialog.exec()
 
     def toggle_preview(self):
         self.text_display.setVisible(not self.text_display.isVisible())

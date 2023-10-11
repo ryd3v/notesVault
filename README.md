@@ -3,6 +3,8 @@
 ![ALT](https://github.com/ryd3v/notesVault/blob/main/Screenshot-1.png)
 ![ALT](https://github.com/ryd3v/notesVault/blob/main/Screenshot-2.png)
 
+## V4.0.2
+
 ## Overview
 
 NotesVault is a secure notes application that allows you to create, save, and load encrypted notes. The application
