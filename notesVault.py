@@ -166,9 +166,7 @@ class NotesVault(QWidget):
     def prompt_password(self):
         dialog = QInputDialog(self)
         dialog.inputMode = QInputDialog.InputMode.TextInput
-        dialog.setLabelText(
-            "Please enter a strong password to encrypt your notes securely.\n\nA 5 word, digit separator password is "
-            "suggested.\n\nPlease Enter your password:")
+        dialog.setLabelText("Enter a password to encrypt your notes securely.\n\nEnter your password:")
         dialog.setTextEchoMode(QLineEdit.EchoMode.Password)
         dialog.setFixedSize(500, 400)
         dialog.setWindowTitle('Notes Vault a secure notes application')
@@ -276,8 +274,9 @@ class NotesVault(QWidget):
         about_label = QLabel(
             "Notes Vault v4.0.2\n"
             "Author: Ryan Collins\n"
-            "Email: hello@ryd3v\n"
+            "Email: hello@ryd3v.com\n"
             "Website: https://github.com/ryd3v/notesVault\n"
+            "Copyright © Ryan Collins"
         )
         about_layout.addWidget(about_label)
         about_dialog.exec()
