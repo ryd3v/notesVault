@@ -4,7 +4,7 @@
 # Author: Ryan Collins
 # Email: hello@ryd3v
 # Social: @ryd3v
-# Version: 4.0.2
+# Version: 4.0.3
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -23,13 +23,14 @@ whether in an action of contract, tort, or otherwise, from, in connection with, 
 its use, or other dealings with the software."""
 
 import base64
+import logging
 import os
 import sys
-import logging
+
 import qdarktheme
 from PyQt6.QtCore import QSize
 from PyQt6.QtGui import QFont, QIcon, QAction
-from PyQt6.QtWidgets import QMenuBar, QMenu, QApplication, QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, \
+from PyQt6.QtWidgets import QMenuBar, QApplication, QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, \
     QInputDialog, \
     QLineEdit, QTextBrowser, QFileDialog, QSizePolicy, QSpacerItem, QMessageBox, QDialog, QLabel
 from cryptography.exceptions import InvalidTag
@@ -170,7 +171,14 @@ class NotesVault(QWidget):
         dialog.setTextEchoMode(QLineEdit.EchoMode.Password)
         dialog.setFixedSize(500, 400)
         dialog.setWindowTitle('Notes Vault a secure notes application')
-
+        dialog.setStyleSheet("""
+            QLabel {
+                font-size: 12pt;
+            }
+            QLineEdit {
+                font-size: 12pt;
+            }
+        """)
         ok = dialog.exec()
         password = dialog.textValue().encode('utf-8')
         return password, ok
@@ -279,6 +287,32 @@ class NotesVault(QWidget):
             "Copyright © Ryan Collins"
         )
         about_layout.addWidget(about_label)
+
+        # Add a spacer for spacing
+        spacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        about_layout.addItem(spacer)
+
+        # Add a disclaimer label
+        disclaimer_label = QLabel(
+            "Disclaimer: Use this application at your own risk.\n"
+            "The author is not responsible for any loss of data or other issues.\n"
+            "A Five(5) word, digit(0-9) separated password is suggested.\n"
+            "The software is provided \"as is\", without any guarantee of any kind, express or implied.\n"
+            "This includes, but is not limited to, the warranties of merchantability, fitness for a particular\n"
+            "purpose, and noninfringement. The authors or copyright holders bear no liability for any claims,\n"
+            "damages, or other liabilities that may arise, whether in an action of contract, tort, or otherwise,\n"
+            "from, in connection with, or in relation to the software, its use, or other dealings with the software."
+        )
+        about_layout.addWidget(disclaimer_label)
+
+        about_dialog.setStyleSheet("""
+            QLabel {
+                font-size: 12pt;
+            }
+            QLineEdit {
+                font-size: 12pt;
+            }
+        """)
         about_dialog.exec()
 
     def toggle_preview(self):
