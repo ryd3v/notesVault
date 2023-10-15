@@ -4,7 +4,7 @@
 # Author: Ryan Collins
 # Email: hello@ryd3v
 # Social: @ryd3v
-# Version: 4.0.3
+# Version: 4.0.4
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -183,11 +183,24 @@ class NotesVault(QWidget):
         password = dialog.textValue().encode('utf-8')
         return password, ok
 
-    def initUI(self):
-        menu_bar = QMenuBar(self)
-        file_menu = menu_bar.addMenu('File')
-        about_menu = menu_bar.addMenu('About')
+    def toggle_theme(self):
+        self.dark_mode = not self.dark_mode
+        if self.dark_mode:
+            QApplication.instance().setStyleSheet(qdarktheme.load_stylesheet())  # Set dark theme
+            self.theme_action.setText("Switch to Light Mode")
+        else:
+            QApplication.instance().setStyleSheet("")  # Reset to default theme
+            self.theme_action.setText("Switch to Dark Mode")
 
+    def initUI(self):
+        self.dark_mode = False
+
+        main_layout = QVBoxLayout()
+
+        menu_bar = QMenuBar(self)
+        main_layout.setMenuBar(menu_bar)
+
+        file_menu = menu_bar.addMenu('File')
         save_action = QAction('Save', self)
         save_action.triggered.connect(self.save_notes)
         file_menu.addAction(save_action)
@@ -208,18 +221,23 @@ class NotesVault(QWidget):
         close_action.triggered.connect(self.close)
         file_menu.addAction(close_action)
 
+        settings_menu = menu_bar.addMenu('Settings')
+        self.theme_action = QAction('Switch to Dark Mode', self)
+        self.theme_action.triggered.connect(self.toggle_theme)
+        settings_menu.addAction(self.theme_action)
+
+        about_menu = menu_bar.addMenu('About')
         about_action = QAction('About Notes Vault', self)
         about_action.triggered.connect(self.show_about_dialog)
         about_menu.addAction(about_action)
 
-        main_layout = QVBoxLayout()
         hbox = QHBoxLayout()
         main_layout.addLayout(hbox)
 
         text_edit_layout = QVBoxLayout()
         text_display_layout = QVBoxLayout()
-        text_edit_layout.setContentsMargins(0, 20, 0, 0)
-        text_display_layout.setContentsMargins(0, 20, 0, 0)
+        text_edit_layout.setContentsMargins(0, 8, 0, 0)
+        text_display_layout.setContentsMargins(0, 8, 0, 0)
 
         self.text_edit = QTextEdit()
         self.text_edit.setStyleSheet("border: none; border-radius: 4px;")
@@ -280,10 +298,11 @@ class NotesVault(QWidget):
         about_dialog.setWindowTitle('Notes Vault')
         about_layout = QVBoxLayout(about_dialog)
         about_label = QLabel(
-            "Notes Vault v4.0.3\n"
+            "Notes Vault v4.0.4\n"
             "Author: Ryan Collins\n"
             "Email: hello@ryd3v.com\n"
-            "Website: https://github.com/ryd3v/notesVault\n"
+            "Website: https://ryd3v.com\n"
+            "Source: https://github.com/ryd3v/notesVault\n"
             "Copyright © Ryan Collins"
         )
         about_layout.addWidget(about_label)
