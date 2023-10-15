@@ -280,7 +280,7 @@ class NotesVault(QWidget):
         about_dialog.setWindowTitle('Notes Vault')
         about_layout = QVBoxLayout(about_dialog)
         about_label = QLabel(
-            "Notes Vault v4.0.2\n"
+            "Notes Vault v4.0.3\n"
             "Author: Ryan Collins\n"
             "Email: hello@ryd3v.com\n"
             "Website: https://github.com/ryd3v/notesVault\n"

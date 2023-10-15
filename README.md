@@ -3,7 +3,7 @@
 ![ALT](https://github.com/ryd3v/notesVault/blob/main/Screenshot-1.png)
 ![ALT](https://github.com/ryd3v/notesVault/blob/main/Screenshot-2.png)
 
-## V4.0.2
+## V4.0.3
 
 ## Overview
 
