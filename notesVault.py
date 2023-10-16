@@ -4,7 +4,7 @@
 # Author: Ryan Collins
 # Email: hello@ryd3v
 # Social: @ryd3v
-# Version: 4.0.4
+# Version: 4.0.5
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -27,9 +27,9 @@ import logging
 import os
 import sys
 
-import qdarktheme
-from PyQt6.QtCore import QSize
-from PyQt6.QtGui import QFont, QIcon, QAction
+
+from PyQt6.QtCore import QSize, Qt
+from PyQt6.QtGui import QFont, QIcon, QAction, QPalette, QColor
 from PyQt6.QtWidgets import QMenuBar, QApplication, QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, \
     QInputDialog, \
     QLineEdit, QTextBrowser, QFileDialog, QSizePolicy, QSpacerItem, QMessageBox, QDialog, QLabel
@@ -185,15 +185,46 @@ class NotesVault(QWidget):
 
     def toggle_theme(self):
         self.dark_mode = not self.dark_mode
+        palette = QPalette()
+
         if self.dark_mode:
-            QApplication.instance().setStyleSheet(qdarktheme.load_stylesheet())  # Set dark theme
+            palette.setColor(QPalette.ColorRole.Window, QColor(53, 53, 53))
+            palette.setColor(QPalette.ColorRole.WindowText, Qt.GlobalColor.white)
+            palette.setColor(QPalette.ColorRole.Base, QColor(15, 15, 15))
+            palette.setColor(QPalette.ColorRole.AlternateBase, QColor(53, 53, 53))
+            palette.setColor(QPalette.ColorRole.ToolTipBase, Qt.GlobalColor.white)
+            palette.setColor(QPalette.ColorRole.ToolTipText, Qt.GlobalColor.white)
+            palette.setColor(QPalette.ColorRole.Text, Qt.GlobalColor.white)
+            palette.setColor(QPalette.ColorRole.Button, QColor(53, 53, 53))
+            palette.setColor(QPalette.ColorRole.ButtonText, Qt.GlobalColor.white)
+            palette.setColor(QPalette.ColorRole.BrightText, Qt.GlobalColor.red)
+            palette.setColor(QPalette.ColorRole.Highlight, QColor(142, 45, 197).lighter())
+            palette.setColor(QPalette.ColorRole.HighlightedText, Qt.GlobalColor.black)
+            self.text_edit.setStyleSheet("QTextEdit { background-color: #2b2b2b; color: #ffffff; }")
+            self.text_display.setStyleSheet("QTextBrowser { background-color: #2b2b2b; color: #ffffff; }")
             self.theme_action.setText("Switch to Light Mode")
         else:
-            QApplication.instance().setStyleSheet("")  # Reset to default theme
+            palette.setColor(QPalette.ColorRole.Window, Qt.GlobalColor.white)
+            palette.setColor(QPalette.ColorRole.WindowText, Qt.GlobalColor.black)
+            palette.setColor(QPalette.ColorRole.Base, Qt.GlobalColor.white)
+            palette.setColor(QPalette.ColorRole.AlternateBase, Qt.GlobalColor.white)
+            palette.setColor(QPalette.ColorRole.ToolTipBase, Qt.GlobalColor.black)
+            palette.setColor(QPalette.ColorRole.ToolTipText, Qt.GlobalColor.black)
+            palette.setColor(QPalette.ColorRole.Text, Qt.GlobalColor.black)
+            palette.setColor(QPalette.ColorRole.Button, Qt.GlobalColor.white)
+            palette.setColor(QPalette.ColorRole.ButtonText, Qt.GlobalColor.black)
+            palette.setColor(QPalette.ColorRole.BrightText, Qt.GlobalColor.red)
+            palette.setColor(QPalette.ColorRole.Highlight, Qt.GlobalColor.blue)
+            palette.setColor(QPalette.ColorRole.HighlightedText, Qt.GlobalColor.white)
+            self.text_edit.setStyleSheet("QTextEdit { background-color: #ffffff; color: #000000; }")
+            self.text_display.setStyleSheet("QTextBrowser { background-color: #ffffff; color: #000000; }")
             self.theme_action.setText("Switch to Dark Mode")
 
+        QApplication.instance().setPalette(palette)
+
     def initUI(self):
-        self.dark_mode = False
+        self.dark_mode = True
+        self.default_palette = QApplication.instance().palette()
 
         main_layout = QVBoxLayout()
 
@@ -222,7 +253,7 @@ class NotesVault(QWidget):
         file_menu.addAction(close_action)
 
         settings_menu = menu_bar.addMenu('Settings')
-        self.theme_action = QAction('Switch to Dark Mode', self)
+        self.theme_action = QAction('Switch Theme', self)
         self.theme_action.triggered.connect(self.toggle_theme)
         settings_menu.addAction(self.theme_action)
 
@@ -236,15 +267,13 @@ class NotesVault(QWidget):
 
         text_edit_layout = QVBoxLayout()
         text_display_layout = QVBoxLayout()
-        text_edit_layout.setContentsMargins(0, 8, 0, 0)
-        text_display_layout.setContentsMargins(0, 8, 0, 0)
 
         self.text_edit = QTextEdit()
-        self.text_edit.setStyleSheet("border: none; border-radius: 4px;")
+        self.text_edit.setStyleSheet("border: none; border-radius: 6px;")
         text_edit_layout.addWidget(self.text_edit)
 
         self.text_display = QTextBrowser()
-        self.text_display.setStyleSheet("border: none; border-radius: 4px;")
+        self.text_display.setStyleSheet("border: none; border-radius: 6px;")
         text_display_layout.addWidget(self.text_display)
         self.text_display.setVisible(False)
 
@@ -291,6 +320,7 @@ class NotesVault(QWidget):
         self.setLayout(main_layout)
         self.setWindowTitle('Notes Vault')
         self.resize(960, 640)
+        self.toggle_theme()
         self.show()
 
     def show_about_dialog(self):
@@ -298,7 +328,7 @@ class NotesVault(QWidget):
         about_dialog.setWindowTitle('Notes Vault')
         about_layout = QVBoxLayout(about_dialog)
         about_label = QLabel(
-            "Notes Vault v4.0.4\n"
+            "Notes Vault v4.0.5\n"
             "Author: Ryan Collins\n"
             "Email: hello@ryd3v.com\n"
             "Website: https://ryd3v.com\n"
@@ -381,6 +411,6 @@ class NotesVault(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    qdarktheme.setup_theme("auto")
+    app.setStyle("Fusion")
     ex = NotesVault()
     sys.exit(app.exec())
