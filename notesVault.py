@@ -188,21 +188,21 @@ class NotesVault(QWidget):
         palette = QPalette()
 
         if self.dark_mode:
-            palette.setColor(QPalette.ColorRole.Window, QColor(53, 53, 53))
+            palette.setColor(QPalette.ColorRole.Window, QColor(30, 31, 34))
             palette.setColor(QPalette.ColorRole.WindowText, Qt.GlobalColor.white)
             palette.setColor(QPalette.ColorRole.Base, QColor(15, 15, 15))
-            palette.setColor(QPalette.ColorRole.AlternateBase, QColor(53, 53, 53))
+            palette.setColor(QPalette.ColorRole.AlternateBase, QColor(30, 31, 34))
             palette.setColor(QPalette.ColorRole.ToolTipBase, Qt.GlobalColor.white)
             palette.setColor(QPalette.ColorRole.ToolTipText, Qt.GlobalColor.white)
             palette.setColor(QPalette.ColorRole.Text, Qt.GlobalColor.white)
-            palette.setColor(QPalette.ColorRole.Button, QColor(53, 53, 53))
+            palette.setColor(QPalette.ColorRole.Button, QColor(30, 31, 34))
             palette.setColor(QPalette.ColorRole.ButtonText, Qt.GlobalColor.white)
             palette.setColor(QPalette.ColorRole.BrightText, Qt.GlobalColor.red)
-            palette.setColor(QPalette.ColorRole.Highlight, QColor(142, 45, 197).lighter())
+            palette.setColor(QPalette.ColorRole.Highlight, QColor(59, 130, 246).lighter())
             palette.setColor(QPalette.ColorRole.HighlightedText, Qt.GlobalColor.black)
-            self.text_edit.setStyleSheet("QTextEdit { background-color: #2b2b2b; color: #ffffff; }")
-            self.text_display.setStyleSheet("QTextBrowser { background-color: #2b2b2b; color: #ffffff; }")
-            self.theme_action.setText("Switch to Light Mode")
+            self.text_edit.setStyleSheet("QTextEdit { background-color: #1e1f22; color: #ffffff; }")
+            self.text_display.setStyleSheet("QTextBrowser { background-color: #1e1f22; color: #ffffff; }")
+            self.theme_action.setText("Switch to Light Mode ☀️")
         else:
             palette.setColor(QPalette.ColorRole.Window, Qt.GlobalColor.white)
             palette.setColor(QPalette.ColorRole.WindowText, Qt.GlobalColor.black)
@@ -214,11 +214,11 @@ class NotesVault(QWidget):
             palette.setColor(QPalette.ColorRole.Button, Qt.GlobalColor.white)
             palette.setColor(QPalette.ColorRole.ButtonText, Qt.GlobalColor.black)
             palette.setColor(QPalette.ColorRole.BrightText, Qt.GlobalColor.red)
-            palette.setColor(QPalette.ColorRole.Highlight, Qt.GlobalColor.blue)
+            palette.setColor(QPalette.ColorRole.Highlight, QColor(59, 130, 246).darker())
             palette.setColor(QPalette.ColorRole.HighlightedText, Qt.GlobalColor.white)
             self.text_edit.setStyleSheet("QTextEdit { background-color: #ffffff; color: #000000; }")
             self.text_display.setStyleSheet("QTextBrowser { background-color: #ffffff; color: #000000; }")
-            self.theme_action.setText("Switch to Dark Mode")
+            self.theme_action.setText("Switch to Dark Mode 🌙")
 
         QApplication.instance().setPalette(palette)
 
@@ -320,7 +320,6 @@ class NotesVault(QWidget):
         self.setLayout(main_layout)
         self.setWindowTitle('Notes Vault')
         self.resize(960, 640)
-        self.toggle_theme()
         self.show()
 
     def show_about_dialog(self):
