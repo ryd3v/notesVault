@@ -1,27 +1,3 @@
-# -----------------------------------------------------------------------------
-# Copyright (C) 2023 Ryan Collins
-#
-# Author: Ryan Collins
-# Email: hello@ryd3v
-# Social: @ryd3v
-# Version: 4.0.6
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# -----------------------------------------------------------------------------
-"""The software is provided "as is", without any guarantee of any kind, express or implied. This includes,
-but is not limited to, the warranties of merchantability, fitness for a particular purpose, and noninfringement. The
-authors or copyright holders bear no liability for any claims, damages, or other liabilities that may arise,
-whether in an action of contract, tort, or otherwise, from, in connection with, or in relation to the software,
-its use, or other dealings with the software."""
-
 import base64
 import logging
 import os
@@ -50,19 +26,18 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 
-def derive_master_key(password: bytes, salt: bytes) -> bytes:
+def generate_key(password: str, salt: bytes = None) -> (bytes, bytes):
+    if salt is None:
+        salt = os.urandom(16)  # 128 bits
+
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,
         salt=salt,
-        iterations=650000,
+        iterations=650000,  # Change to match with the original value.
         backend=default_backend()
     )
-    return kdf.derive(password)
-
-
-def generate_db_encryption_key() -> bytes:
-    return os.urandom(32)  # 256 bits
+    return kdf.derive(password), salt
 
 
 def encrypt_key(db_key: bytes, master_key: bytes) -> bytes:
@@ -98,7 +73,7 @@ def decrypt(encrypted_message, key):
 
 
 def validate_password(entered_password: bytes, salt: bytes, stored_verifier: bytes) -> bool:
-    key = derive_master_key(entered_password, salt)
+    key, salt = generate_key(entered_password)
     try:
         decrypted_data = decrypt(stored_verifier, key)
         return decrypted_data == b"known_plaintext"
@@ -136,13 +111,9 @@ class NotesVault(QWidget):
             password, ok = self.prompt_password()
             if ok:
                 salt = os.urandom(16)  # 128 bits
-                master_key = derive_master_key(password, salt)
-                db_encryption_key = generate_db_encryption_key()
-                encrypted_db_key = encrypt_key(db_encryption_key, master_key)
+                self.db_encryption_key, salt = generate_key(password, salt)
                 with open('key.enc', 'wb') as f:
-                    f.write(salt + encrypted_db_key)
-                self.master_key = master_key
-                self.db_encryption_key = db_encryption_key
+                    f.write(salt + self.db_encryption_key)
                 self.initUI()
             else:
                 self.close()
@@ -150,8 +121,7 @@ class NotesVault(QWidget):
             password, ok = self.prompt_password()
             if ok:
                 try:
-                    self.master_key = derive_master_key(password, salt)
-                    self.db_encryption_key = decrypt_key(encrypted_db_key, self.master_key)
+                    self.db_encryption_key, salt = generate_key(password, salt)
                     self.initUI()
                 except InvalidTag:
                     logging.exception("Decryption failed due to invalid tag, possibly wrong password")
@@ -327,7 +297,7 @@ class NotesVault(QWidget):
         about_dialog.setWindowTitle('Notes Vault')
         about_layout = QVBoxLayout(about_dialog)
         about_label = QLabel(
-            "Notes Vault v4.0.5\n"
+            "Notes Vault v4.1.0\n"
             "Author: Ryan Collins\n"
             "Email: hello@ryd3v.com\n"
             "Website: https://ryd3v.com\n"
@@ -386,11 +356,10 @@ class NotesVault(QWidget):
         if filename:
             try:
                 with open('key.enc', 'rb') as f:
-                    encrypted_db_key = f.read()
-                    salt, encrypted_db_key = encrypted_db_key[:16], encrypted_db_key[16:]  # Fixed line
+                    data = f.read()
+                    salt, self.db_encryption_key = data[:16], data[16:]
                 with open(filename, "rb") as note_file:
                     encrypted_note = note_file.read()
-                self.db_encryption_key = decrypt_key(encrypted_db_key, self.master_key)
                 decrypted_note = decrypt_notes(encrypted_note, self.db_encryption_key)
                 self.text_edit.setPlainText(decrypted_note)
                 self.render_markdown()
