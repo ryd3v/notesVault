@@ -32,4 +32,4 @@ In case of any queries or suggestions, feel free to open up an issue.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE.md) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
