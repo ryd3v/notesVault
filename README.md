@@ -1,9 +1,9 @@
 # NotesVault
 
-![ALT](Screenshot-1.png)
-![ALT](Screenshot-2.png)
-![ALT](Screenshot-3.png)
-![ALT](Screenshot-4.png)
+![ALT](1.png)
+![ALT](2.png)
+![ALT](3.png)
+![ALT](4.png)
 
 ## V4.1.1
 
