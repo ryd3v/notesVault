@@ -2,10 +2,10 @@
 
 
 a = Analysis(
-    ['notesVault.py'],
+    ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[('icon.ico', '.'), ('./icons/open.png', '.'), ('./icons/preview.png', '.'), ('./icons/save.png', '.'), ('./icons/single.png', '.')],
+    datas=[('icon.ico', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -21,7 +21,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='notesVault',
+    name='notesVaultV-4.1.1',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

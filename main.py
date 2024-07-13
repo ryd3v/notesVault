@@ -3,9 +3,8 @@ import logging
 import os
 import sys
 
-
-from PyQt6.QtCore import QSize, Qt
-from PyQt6.QtGui import QFont, QIcon, QAction, QPalette, QColor
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QIcon, QAction, QPalette, QColor
 from PyQt6.QtWidgets import QMenuBar, QApplication, QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, \
     QInputDialog, \
     QLineEdit, QTextBrowser, QFileDialog, QSizePolicy, QSpacerItem, QMessageBox, QDialog, QLabel
@@ -34,105 +33,79 @@ def generate_key(password: str, salt: bytes = None) -> (bytes, bytes):
         algorithm=hashes.SHA256(),
         length=32,
         salt=salt,
-        iterations=650000,  # Change to match with the original value.
+        iterations=650000,
         backend=default_backend()
     )
-    return kdf.derive(password), salt
-
-
-def encrypt_key(db_key: bytes, master_key: bytes) -> bytes:
-    aesgcm = AESGCM(master_key)
-    nonce = os.urandom(12)
-    return nonce + aesgcm.encrypt(nonce, db_key, None)
-
-
-def decrypt_key(encrypted_db_key: bytes, master_key: bytes) -> bytes:
-    aesgcm = AESGCM(master_key)
-    nonce, ct = encrypted_db_key[:12], encrypted_db_key[12:]
-    return aesgcm.decrypt(nonce, ct, None)
+    return kdf.derive(password.encode('utf-8')), salt
 
 
 def encrypt(message, key):
-    backend = default_backend()
-    algorithm = algorithms.AES(key)
     iv = os.urandom(12)  # GCM standard
-    cipher = Cipher(algorithm, modes.GCM(iv), backend=backend)
+    cipher = Cipher(algorithms.AES(key), modes.GCM(iv), backend=default_backend())
     encryptor = cipher.encryptor()
-    ct = encryptor.update(message) + encryptor.finalize()
+    ct = encryptor.update(message.encode('utf-8')) + encryptor.finalize()
     return base64.urlsafe_b64encode(iv + encryptor.tag + ct)
 
 
 def decrypt(encrypted_message, key):
-    backend = default_backend()
     encrypted_message_bytes = base64.urlsafe_b64decode(encrypted_message)
     iv, tag, ct = encrypted_message_bytes[:12], encrypted_message_bytes[12:28], encrypted_message_bytes[28:]
-    algorithm = algorithms.AES(key)
-    cipher = Cipher(algorithm, modes.GCM(iv, tag), backend=backend)
+    cipher = Cipher(algorithms.AES(key), modes.GCM(iv, tag), backend=default_backend())
     decryptor = cipher.decryptor()
     return (decryptor.update(ct) + decryptor.finalize()).decode('utf-8')
 
 
+def create_password_verifier(key: bytes) -> bytes:
+    return encrypt("known_plaintext", key)
+
+
 def validate_password(entered_password: bytes, salt: bytes, stored_verifier: bytes) -> bool:
-    key, salt = generate_key(entered_password)
+    key, _ = generate_key(entered_password.decode('utf-8'), salt)
     try:
-        decrypted_data = decrypt(stored_verifier, key)
-        return decrypted_data == b"known_plaintext"
+        return decrypt(stored_verifier, key) == "known_plaintext"
     except (InvalidTag, ValueError):
         return False
-
-
-def create_password_verifier(key: bytes) -> bytes:
-    known_plaintext = b"known_plaintext"
-    return encrypt(known_plaintext, key)
 
 
 def encrypt_notes(notes: str, key: bytes) -> bytes:
     aesgcm = AESGCM(key)
     nonce = os.urandom(12)
-    return nonce + aesgcm.encrypt(nonce, notes.encode(), None)
+    return nonce + aesgcm.encrypt(nonce, notes.encode('utf-8'), None)
 
 
 def decrypt_notes(encrypted_notes: bytes, key: bytes) -> str:
     aesgcm = AESGCM(key)
     nonce, ct = encrypted_notes[:12], encrypted_notes[12:]
-    return aesgcm.decrypt(nonce, ct, None).decode()
+    return aesgcm.decrypt(nonce, ct, None).decode('utf-8')
 
 
 class NotesVault(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowIcon(QIcon(resource_path("./icon.ico")))
+        self.init_ui()
 
         try:
             with open('key.enc', 'rb') as f:
                 data = f.read()
             salt, encrypted_db_key = data[:16], data[16:]
+            self.db_encryption_key, _ = generate_key(self.prompt_password(), salt)
+            self.initUI()
         except FileNotFoundError:
-            password, ok = self.prompt_password()
-            if ok:
-                salt = os.urandom(16)  # 128 bits
-                self.db_encryption_key, salt = generate_key(password, salt)
-                with open('key.enc', 'wb') as f:
-                    f.write(salt + self.db_encryption_key)
-                self.initUI()
-            else:
-                self.close()
-        else:
-            password, ok = self.prompt_password()
-            if ok:
-                try:
-                    self.db_encryption_key, salt = generate_key(password, salt)
-                    self.initUI()
-                except InvalidTag:
-                    logging.exception("Decryption failed due to invalid tag, possibly wrong password")
-                    QMessageBox.warning(self, "Error", "Failed to decrypt. Incorrect password entered.")
-                    self.close()
-                except Exception as e:
-                    logging.exception("An unexpected error occurred")
-                    QMessageBox.warning(self, "Error", f"An unexpected error occurred: {str(e)}")
-                    self.close()
-            else:
-                self.close()
+            password = self.prompt_password()
+            salt = os.urandom(16)  # 128 bits
+            self.db_encryption_key, salt = generate_key(password, salt)
+            with open('key.enc', 'wb') as f:
+                f.write(salt + self.db_encryption_key)
+            self.initUI()
+        except (InvalidTag, ValueError):
+            logging.exception("Decryption failed due to invalid tag, possibly wrong password")
+            QMessageBox.warning(self, "Error", "Failed to decrypt. Incorrect password entered.")
+            self.close()
+        except Exception as e:
+            logging.exception("An unexpected error occurred")
+            QMessageBox.warning(self, "Error", f"An unexpected error occurred: {str(e)}")
+            self.close()
 
     def prompt_password(self):
         dialog = QInputDialog(self)
@@ -140,21 +113,22 @@ class NotesVault(QWidget):
         dialog.setLabelText("Enter a password to encrypt your notes securely.\n\nEnter your password:")
         dialog.setTextEchoMode(QLineEdit.EchoMode.Password)
         dialog.setFixedSize(500, 400)
-        dialog.setWindowTitle('Notes Vault a secure notes application')
-        dialog.setStyleSheet("""
-            QLabel {
-                font-size: 12pt;
-            }
-            QLineEdit {
-                font-size: 12pt;
-            }
-        """)
-        ok = dialog.exec()
-        password = dialog.textValue().encode('utf-8')
-        return password, ok
+        dialog.setWindowTitle('Notes Vault - A Secure Notes Application')
+        dialog.setStyleSheet(self.get_stylesheet())
+        if dialog.exec():
+            return dialog.textValue()
+        else:
+            self.close()
 
     def toggle_theme(self):
         self.dark_mode = not self.dark_mode
+        QApplication.instance().setPalette(self.get_palette())
+
+    def init_ui(self):
+        self.dark_mode = True
+        self.default_palette = QApplication.instance().palette()
+
+    def get_palette(self):
         palette = QPalette()
 
         if self.dark_mode:
@@ -190,47 +164,37 @@ class NotesVault(QWidget):
             self.text_display.setStyleSheet("QTextBrowser { background-color: #ffffff; color: #000000; }")
             self.theme_action.setText("Switch to Dark Mode 🌙")
 
-        QApplication.instance().setPalette(palette)
+        return palette
+
+    def get_stylesheet(self):
+        return """
+            QLabel {
+                font-size: 12pt;
+            }
+            QLineEdit {
+                font-size: 12pt;
+            }
+        """
 
     def initUI(self):
-        self.dark_mode = True
-        self.default_palette = QApplication.instance().palette()
-
         main_layout = QVBoxLayout()
 
         menu_bar = QMenuBar(self)
         main_layout.setMenuBar(menu_bar)
 
         file_menu = menu_bar.addMenu('File')
-        save_action = QAction('Save', self)
-        save_action.triggered.connect(self.save_notes)
-        file_menu.addAction(save_action)
-
-        open_action = QAction('Open', self)
-        open_action.triggered.connect(self.load_notes)
-        file_menu.addAction(open_action)
-
-        markdown_action = QAction('Markdown', self)
-        markdown_action.triggered.connect(self.render_markdown)
-        file_menu.addAction(markdown_action)
-
-        preview_action = QAction('Preview', self)
-        preview_action.triggered.connect(self.toggle_preview)
-        file_menu.addAction(preview_action)
-
-        close_action = QAction('Close', self)
-        close_action.triggered.connect(self.close)
-        file_menu.addAction(close_action)
+        file_menu.addAction(QAction('Save', self, triggered=self.save_notes))
+        file_menu.addAction(QAction('Open', self, triggered=self.load_notes))
+        file_menu.addAction(QAction('Markdown', self, triggered=self.render_markdown))
+        file_menu.addAction(QAction('Preview', self, triggered=self.toggle_preview))
+        file_menu.addAction(QAction('Close', self, triggered=self.close))
 
         settings_menu = menu_bar.addMenu('Settings')
-        self.theme_action = QAction('Switch Theme', self)
-        self.theme_action.triggered.connect(self.toggle_theme)
+        self.theme_action = QAction('Switch Theme', self, triggered=self.toggle_theme)
         settings_menu.addAction(self.theme_action)
 
         about_menu = menu_bar.addMenu('About')
-        about_action = QAction('About Notes Vault', self)
-        about_action.triggered.connect(self.show_about_dialog)
-        about_menu.addAction(about_action)
+        about_menu.addAction(QAction('About Notes Vault', self, triggered=self.show_about_dialog))
 
         hbox = QHBoxLayout()
         main_layout.addLayout(hbox)
@@ -250,36 +214,22 @@ class NotesVault(QWidget):
         hbox.addLayout(text_edit_layout)
         hbox.addLayout(text_display_layout)
 
-        icon_size = QSize(24, 24)
-        button_font = QFont("Arial", 10)
         button_layout = QHBoxLayout()
         button_layout.addItem(QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum))
 
         self.save_button = QPushButton("Save")
-        self.save_button.setFont(button_font)
-        self.save_button.setIcon(QIcon(resource_path("save.png")))
-        self.save_button.setIconSize(icon_size)
         self.save_button.clicked.connect(self.save_notes)
         button_layout.addWidget(self.save_button)
 
         self.load_button = QPushButton("Open")
-        self.load_button.setFont(button_font)
-        self.load_button.setIcon(QIcon(resource_path("open.png")))
-        self.load_button.setIconSize(icon_size)
         self.load_button.clicked.connect(self.load_notes)
         button_layout.addWidget(self.load_button)
 
         self.markdown_button = QPushButton("Markdown")
-        self.markdown_button.setFont(button_font)
-        self.markdown_button.setIcon(QIcon(resource_path("single.png")))
-        self.markdown_button.setIconSize(icon_size)
         self.markdown_button.clicked.connect(self.render_markdown)
         button_layout.addWidget(self.markdown_button)
 
         self.toggle_preview_button = QPushButton("Preview")
-        self.toggle_preview_button.setFont(button_font)
-        self.toggle_preview_button.setIcon(QIcon(resource_path("preview.png")))
-        self.toggle_preview_button.setIconSize(icon_size)
         self.toggle_preview_button.clicked.connect(self.toggle_preview)
         button_layout.addWidget(self.toggle_preview_button)
 
@@ -297,7 +247,7 @@ class NotesVault(QWidget):
         about_dialog.setWindowTitle('Notes Vault')
         about_layout = QVBoxLayout(about_dialog)
         about_label = QLabel(
-            "Notes Vault v4.1.0\n"
+            "Notes Vault v4.1.1\n"
             "Author: Ryan Collins\n"
             "Email: hello@ryd3v.com\n"
             "Website: https://ryd3v.com\n"
@@ -306,11 +256,9 @@ class NotesVault(QWidget):
         )
         about_layout.addWidget(about_label)
 
-        # Add a spacer for spacing
         spacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         about_layout.addItem(spacer)
 
-        # Add a disclaimer label
         disclaimer_label = QLabel(
             "Disclaimer: Use this application at your own risk.\n"
             "The author is not responsible for any loss of data or other issues.\n"
@@ -323,14 +271,7 @@ class NotesVault(QWidget):
         )
         about_layout.addWidget(disclaimer_label)
 
-        about_dialog.setStyleSheet("""
-            QLabel {
-                font-size: 12pt;
-            }
-            QLineEdit {
-                font-size: 12pt;
-            }
-        """)
+        about_dialog.setStyleSheet(self.get_stylesheet())
         about_dialog.exec()
 
     def toggle_preview(self):
@@ -355,9 +296,6 @@ class NotesVault(QWidget):
         filename, _ = QFileDialog.getOpenFileName(self, "Open Note", "", "Encrypted Notes Files (*.enc);;All Files (*)")
         if filename:
             try:
-                with open('key.enc', 'rb') as f:
-                    data = f.read()
-                    salt, self.db_encryption_key = data[:16], data[16:]
                 with open(filename, "rb") as note_file:
                     encrypted_note = note_file.read()
                 decrypted_note = decrypt_notes(encrypted_note, self.db_encryption_key)
