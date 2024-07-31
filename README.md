@@ -5,7 +5,7 @@
 ![ALT](3.png)
 ![ALT](4.png)
 
-## V4.1.1
+## V4.1.2
 
 ## Overview
 
@@ -26,7 +26,6 @@ These measures, along with the absence of a direct hash of the password, contrib
 3. Further code consistency has been maintained, many functions have been updated to be consistent with the new key generation implementation. This ensures a seamless and smooth operation of saving and loading notes.
 
 4. Improved error handling across the application has been carried out to ensure broad coverage of potential exceptions. This will provide feedback to the user, thereby offering a secured and reliable NotesVault experience.
-
 
 In case of any queries or suggestions, feel free to open up an issue.
 
